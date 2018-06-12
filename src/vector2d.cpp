@@ -1,7 +1,6 @@
 #include <cmath>
 
-class Vector2d {
-public:
+struct Vector2d {
     double x, y;
 
     Vector2d() {
@@ -9,21 +8,16 @@ public:
         y = 0;
     }
 
-    Vector2d(int X, int Y) {
-        x = X;
-        y = Y;
+    Vector2d(double x, double y) {
+        this->x = x;
+        this->y = y;
     }
 
-    Vector2d operator-(Vector2d B) {
-        Vector2d Difference;
-        Difference.x = x - B.x;
-        Difference.y = y - B.y;
-        return Difference;
+    Vector2d* operator-(Vector2d b) {
+        return new Vector2d(x - b.x, y - b.y);
     }
 
     double operator~() {
-        double modulus;
-        modulus = sqrt(x * x + y * y);
-        return modulus;
+        return sqrt(x * x + y * y);
     }
 };

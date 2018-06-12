@@ -1,22 +1,21 @@
-#include<simplecpp>
-#include<fstream>
-#include"element.cpp"
-#include"vector2d.cpp"
+#include <simplecpp>
+#include <fstream>
+#include "element.cpp"
+#include "vector2d.cpp"
 
 int dimension;// dimension of Square Canvas
 int maxE;// Maximum number of elements on Board (excluding the center one)
-double gloX = 0, gloY = 0;// Global X and Y to assign the getClick X and Y
 int randomVar = 0;// random variable for color and name
 int cR = 1, cG = 2, cB = 3;// random variables for colors
 bool comboContinue;
 
-// puts the X and Y value of the Click in 'gloX' , 'gloY'
-void registerClick() {
+Vector2d *registerClick() {
     const int twoPower16 = 65536;
     int point;
     point = getClick();
-    gloX = point / (double) twoPower16;
-    gloY = point % twoPower16;
+    double x = point / (double) twoPower16;
+    double y = point % twoPower16;
+    return new Vector2d(x, y);
 }
 
 // (the order of input matters) OUTPUT -pi to pi
@@ -114,8 +113,8 @@ struct Board {
 
         E = new Element *[maxE];
         for (int i = 0; i < maxE; i++) {
-            E[i] = NULL;
-        }// initializes the all 'E[i]' pointers to NULL as no elements are there
+            E[i] = nullptr;
+        }// initializes the all 'E[i]' pointers to nullptr as no elements are there
         Rectangle B0(dimension / 2, dimension / 2, dimension, dimension);
         B0.setColor(COLOR(0, 0, 0));
         B0.setFill(1);
@@ -135,7 +134,7 @@ struct Board {
 
     void resetHighestNumber() {
         for (int i = 0; i < maxE; i++) {
-            if (E[i] != NULL) {
+            if (E[i] != nullptr) {
                 if (E[i]->name > highestNumber) highestNumber = E[i]->name;
             }
         }
@@ -143,7 +142,6 @@ struct Board {
 
     void randomNewElement() {
         // Max number of elements are 12. A transition of 13 is possible if it Decreases 'noE' (or) the Game Ends then
-
         if (noE == 0) {
             Element newElement;// A new Element Comes in the center
             userClick(newElement);
@@ -159,16 +157,15 @@ struct Board {
             randomVar = (randomVar + 1) % 5;
             return;
         }
-
-    }// Element type var 'newElement' is "GIVEN" a pointer 'noE' ,Element.'sectorNo' and 'sectorAngle' are taken care of
+    }// Element type var 'newElement' is "GIVEN" a pointer 'noE' ,Element.'sector' and 'sectorAngle' are taken care of
 
     void userClick(Element newElement) {
         int nullPointerIndex;
         for (nullPointerIndex = 0; nullPointerIndex < maxE; nullPointerIndex++) {
-            if (E[nullPointerIndex] == NULL) { break; }
+            if (E[nullPointerIndex] == nullptr) { break; }
         }
         if (nullPointerIndex == maxE) { nullPointerIndex = -1; }
-        // if there is any E[i] pointer left pointing to NULL 'nullPointerIndex' has its index (or) if no such pointer is present then it is set to value -1
+        // if there is any E[i] pointer left pointing to nullptr 'nullPointerIndex' has its index (or) if no such pointer is present then it is set to value -1
 
         // cout<<nullPointerIndex<<endl;
 
@@ -176,66 +173,67 @@ struct Board {
         *E[nullPointerIndex] = newElement;
         E[nullPointerIndex]->pointedByIndex = nullPointerIndex;
         // E[nullPointerIndex] is set to the new incomming Element
-        // 'noE' 'sectorAngle' Element.'sectorNo' are TO BE re-assigned
+        // 'noE' 'sectorAngle' Element.'sector' are TO BE re-assigned
 
         if (noE == 0) {
             sectorAngle = 360;
         }
 
-        registerClick();
-        Vector2d click(gloX, gloY);
-        Vector2d center(dimension / 12, dimension - dimension / 12);
-
-        if (~(center - click) <= dimension / 10) {
+        Vector2d *click = registerClick();
+        Vector2d center(dimension / 12., dimension - dimension / 12.);
+        Vector2d *clickToCenter = center - *click;
+        if (~*clickToCenter <= dimension / 10.) {
             resetHighScore();
         }
+
         // High Score Insertion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         double theta;
-        theta = signedSlope(dimension / 2, dimension / 2, gloX, gloY);// theta has the 0 to 359 value
-        int SectorNoSource;
+        theta = signedSlope(dimension / 2., dimension / 2., click->x, click->y); // theta has the 0 to 359 value
+        delete click, clickToCenter;
+        int sectorNoSource;
 
-        SectorNoSource = (theta / sectorAngle);
-        E[nullPointerIndex]->sectorNo = SectorNoSource;
+        sectorNoSource = (theta / sectorAngle);
+        E[nullPointerIndex]->sector = sectorNoSource;
 
         for (int i = 0; i < maxE; i++) {
-            if (E[i] != NULL && i != nullPointerIndex) {
-                if (E[i]->sectorNo > E[nullPointerIndex]->sectorNo) {
-                    E[i]->sectorNo++;
+            if (E[i] != nullptr && i != nullPointerIndex) {
+                if (E[i]->sector > E[nullPointerIndex]->sector) {
+                    E[i]->sector++;
                 }
             }
         }
 
         if (noE != 0) {
-            E[nullPointerIndex]->sectorNo++;
-        }// Increases all the Element.'sectorNo' by 1 whose value is greater than E[nullPointerIndex]->sectorNo And
-        // Also increases E[nullPointerIndex]->sectorNo by 1 for the noE != 0 case
+            E[nullPointerIndex]->sector++;
+        }// Increases all the Element.'sector' by 1 whose value is greater than E[nullPointerIndex]->sector And
+        // Also increases E[nullPointerIndex]->sector by 1 for the noE != 0 case
 
         noE++;
         if (noE == 0) {
             sectorAngle = 360;
         }
         if (noE > 0) {
-            sectorAngle = 360.0 / noE;
+            sectorAngle = 360. / noE;
         }
         if (noE < 0) {
             cout << "Some Problem with the Code" << endl;
         }
 
         arrTheElements();
-    }// A pointer pointing to NULL is declared to point 'Element' type in heap and the 'newElement' is assigned to it
-    // noE is also increased ,Element.'sectorNo' is assigned and 'pointedByIndex' and 'sectorAngle' is taken care of
+    }// A pointer pointing to nullptr is declared to point 'Element' type in heap and the 'newElement' is assigned to it
+    // noE is also increased ,Element.'sector' is assigned and 'pointedByIndex' and 'sectorAngle' is taken care of
 
     void anyCombo() {
         Element *dupElements[maxE];
         for (int i = 0; i < maxE; i++) {
-            dupElements[i] = NULL;
-        }// All the 'Dup'pointers point to 'NULL'
+            dupElements[i] = nullptr;
+        }// All the 'Dup'pointers point to 'nullptr'
 
         for (int i = 0; i < maxE; i++) {
-            if (E[i] != NULL) {
-                dupElements[E[i]->sectorNo] = E[i];
+            if (E[i] != nullptr) {
+                dupElements[E[i]->sector] = E[i];
             }
-        }// 'Dup' Pointers set such that Dup[i] points to E[j] whose E[i]->sectorNo is i
+        }// 'Dup' Pointers set such that Dup[i] points to E[j] whose E[i]->sector is i
         // 'Dup' Pointers are stored in stack and points to heap
         // As 'E' pointers already point to same Elements in heap ,the heap memeory pointed to at by 'Dup' pointers must NOT be freed(deleted)
 
@@ -258,7 +256,8 @@ struct Board {
                     }
                     // 'CW' and 'ACW' go round the circle
 
-                    if ((abs(CW - ACW) == 1 || abs(CW - ACW) == noE - 1) && dupElements[CW]->name == dupElements[ACW]->name) {
+                    if ((abs(CW - ACW) == 1 || abs(CW - ACW) == noE - 1) &&
+                        dupElements[CW]->name == dupElements[ACW]->name) {
                         break;
                     }
 
@@ -290,7 +289,7 @@ struct Board {
 
         // 'score' taken care of
         // startingPoint.'name' is increased as 'newName' but not assigned
-        // all combo 'E[i]' memory is freed ,set to point 'NULL' , corresponding 'Dup[j]' is set to 'NULL'
+        // all combo 'E[i]' memory is freed ,set to point 'nullptr' , corresponding 'Dup[j]' is set to 'nullptr'
         for (int i = 1; i <= comboChecker; i++) {
             int CW = (startingPoint + i) % noE;
             int ACW = (startingPoint - i) % noE;
@@ -311,51 +310,51 @@ struct Board {
 
             bubblingEffect(E[dupElements[CW]->pointedByIndex], E[dupElements[ACW]->pointedByIndex]);
 
-            E[dupElements[CW]->pointedByIndex] = NULL;
+            E[dupElements[CW]->pointedByIndex] = nullptr;
             delete dupElements[CW];
-            dupElements[CW] = NULL;
+            dupElements[CW] = nullptr;
 
-            E[dupElements[ACW]->pointedByIndex] = NULL;
+            E[dupElements[ACW]->pointedByIndex] = nullptr;
             delete dupElements[ACW];
-            dupElements[ACW] = NULL;
+            dupElements[ACW] = nullptr;
 
             score = score + 1;
         }
 
         dupElements[(startingPoint) % noE]->updateNameAndColor(newName);
 
-        if (dupElements[0] != NULL) {
-            // cout<<"Dup[0] != NULL case"<<endl;
+        if (dupElements[0] != nullptr) {
+            // cout<<"Dup[0] != nullptr case"<<endl;
             if (startingPoint == 0) {
                 for (int i = 1; true; i++) {
                     int point = (startingPoint + comboChecker + i) % noE;
-                    if (dupElements[point] == NULL)break;
+                    if (dupElements[point] == nullptr)break;
                     if (point == 0)cout << "Some Problem with the Code" << endl;
-                    dupElements[point]->sectorNo = dupElements[point]->sectorNo - comboChecker;
+                    dupElements[point]->sector = dupElements[point]->sector - comboChecker;
                     if (point == (noE - 1))cout << "Some Problem with the Code" << endl;
                 }
             } else if (startingPoint > 0) {
-                int SectorNoChanger = dupElements[startingPoint]->sectorNo;
+                int SectorNoChanger = dupElements[startingPoint]->sector;
                 SectorNoChanger = SectorNoChanger - comboChecker;
-                dupElements[startingPoint]->sectorNo = SectorNoChanger;
+                dupElements[startingPoint]->sector = SectorNoChanger;
 
                 for (int i = 1; true; i++) {
                     int point = (startingPoint + comboChecker + i) % noE;
                     if (point == 0)break;
-                    dupElements[point]->sectorNo = dupElements[point]->sectorNo - 2 * comboChecker;
+                    dupElements[point]->sector = dupElements[point]->sector - 2 * comboChecker;
                     if (point == (noE - 1))break;
                 }
             }
-        } else if (dupElements[0] == NULL) {
-            // cout<<"Dup[0] == NULL case"<<endl;
-            dupElements[startingPoint]->sectorNo = 0;
+        } else if (dupElements[0] == nullptr) {
+            // cout<<"Dup[0] == nullptr case"<<endl;
+            dupElements[startingPoint]->sector = 0;
 
             int noTimes = noE - 2 * comboChecker - 1;
             for (int i = 1; i <= noTimes; i++) {
                 int point = (startingPoint + comboChecker + i) % noE;
-                dupElements[point]->sectorNo = i % (noE - 2 * comboChecker);
+                dupElements[point]->sector = i % (noE - 2 * comboChecker);
             }
-        }// Element.'sectorNo' is taken care of
+        }// Element.'sector' is taken care of
 
         noE = noE - 2 * comboChecker;// 'noE' is taken care of
 
@@ -363,7 +362,7 @@ struct Board {
             sectorAngle = 360;
         }
         if (noE > 0) {
-            sectorAngle = 360.0 / noE;
+            sectorAngle = 360. / noE;
         }
         if (noE < 0) {
             cout << "Some Problem with the Code" << endl;
@@ -376,16 +375,16 @@ struct Board {
 
     void arrTheElements() {
         for (int i = 0; i < maxE; i++) {
-            if (E[i] != NULL) {
-                E[i]->resetTheElementUsingSectorNo(sectorAngle);
+            if (E[i] != nullptr) {
+                E[i]->setSector(sectorAngle);
             }
         }
     }
 
     void comboTheElements() {
         for (int i = 0; i < maxE; i++) {
-            if (E[i] != NULL) {
-                E[i]->resetTheElementUsingSectorNo(sectorAngle);
+            if (E[i] != nullptr) {
+                E[i]->setSector(sectorAngle);
             }
         }
         if (comboContinue)anyCombo();
@@ -394,7 +393,7 @@ struct Board {
     int notNullCount() {
         int count = 0;
         for (int i = 0; i < maxE; i++) {
-            if (E[i] != NULL) {
+            if (E[i] != nullptr) {
                 count++;
             }
         }
@@ -454,12 +453,12 @@ struct Board {
         double radius1 = E1->radius;
         double radius2 = E2->radius;
 
-        double waitTime = 0.005;
+        float waitTime = 0.0005;
 
         double tempRadius1 = radius1;
         double tempRadius2 = radius2;
 
-        double range = dimension / 40;
+        double range = dimension / 40.;
         int radChanger = 1;
         int halfCycleCounter = 0;
         while (true) {
