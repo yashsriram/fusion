@@ -18,12 +18,12 @@ struct Element {
     // meta data
     int name; // name that appears on the screen
     int sector; // the sector number which it is in
-    int pointedByIndex; // has the index of the Board.'E' pointer which points to this in the heap
+    int pointedByIndex; // has the index of the Board.'elements' pointer which points to this in the heap
 
     Element() {
         // init state
         sector = -1;
-        pointedByIndex = -1; // not Pointed by any Board.'E[i]' pointer
+        pointedByIndex = -1; // not Pointed by any Board.'elements[i]' pointer
         radius = dimension * 4 / 50.0;
         name = randomVar + 1; // randomness comes from here
         x = dimension / 2.0;

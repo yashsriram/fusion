@@ -3,11 +3,8 @@
 #include "element.cpp"
 #include "vector2d.cpp"
 
-int dimension;// dimension of Square Canvas
-int maxE;// Maximum number of elements on Board (excluding the center one)
 int randomVar = 0;// random variable for color and name
 int cR = 1, cG = 2, cB = 3;// random variables for colors
-bool comboContinue;
 
 Vector2d *registerClick() {
     const int twoPower16 = 65536;
@@ -36,41 +33,53 @@ double signedSlope(double x1, double y1, double x2, double y2) {
 }
 
 struct Board {
+    const int sideLength; // Side length of Square Canvas
+    const int maxElements; // Maximum number of elements on board (excluding the center one)
+
+    // state
     int noE;
     int score;
     int highestNumber;
-    Element **E;
     double sectorAngle;
+    bool comboContinue;
+    Element **elements;
+
+    // meta data
     string userName;
     ifstream highScoreFileInput;
     ofstream highScoreFileOutput;
     ofstream allScoresFileOutput;
 
-    Board() {
+    Board(int sideLength, int maxElements) : sideLength(sideLength),
+                                             maxElements(maxElements),
+                                             noE(0),
+                                             score(0),
+                                             highestNumber(0),
+                                             sectorAngle(0) {
         initialize();
 
-        Text noEDisplayBox(dimension - dimension / 12, dimension - dimension / 12 - dimension / 50,
+        Text noEDisplayBox(sideLength - sideLength / 12., sideLength - sideLength / 12. - sideLength / 50.,
                            "ELEMENTS ON BOARD");
         noEDisplayBox.setColor(COLOR(60, 226, 10));
 
-        Text highestNumberDisplayBox(dimension / 12, dimension / 12 - dimension / 50, "HIGHEST NUMBER ACHIEVED");
+        Text highestNumberDisplayBox(sideLength / 12., sideLength / 12. - sideLength / 50., "HIGHEST NUMBER ACHIEVED");
         highestNumberDisplayBox.setColor(COLOR(60, 226, 10));
 
-        Text scoreDisplayBox(dimension - dimension / 12, dimension / 12 - dimension / 50, "SCORE");
+        Text scoreDisplayBox(sideLength - sideLength / 12., sideLength / 12. - sideLength / 50., "SCORE");
         scoreDisplayBox.setColor(COLOR(60, 226, 10));
 
-        Circle exitBox(dimension / 12, dimension - dimension / 12, dimension / 10);
-        Text Exit(dimension / 12, dimension - dimension / 12, "EXIT");
-        Exit.setColor(COLOR(60, 226, 10));
+        Circle exitBox(sideLength / 12., sideLength - sideLength / 12., sideLength / 10.);
+        Text exitMessage(sideLength / 12., sideLength - sideLength / 12., "EXIT");
+        exitMessage.setColor(COLOR(60, 226, 10));
 
         while (true) {
-            Text noEDisplay(dimension - dimension / 12, dimension - dimension / 12, noE);
+            Text noEDisplay(sideLength - sideLength / 12., sideLength - sideLength / 12., noE);
             noEDisplay.setColor(COLOR(60, 226, 10));
 
-            Text highestNumberDisplay(dimension / 12, dimension / 12, highestNumber);
+            Text highestNumberDisplay(sideLength / 12., sideLength / 12., highestNumber);
             highestNumberDisplay.setColor(COLOR(60, 226, 10));
 
-            Text scoreDisplay(dimension - dimension / 12, dimension / 12, score);
+            Text scoreDisplay(sideLength - sideLength / 12., sideLength / 12., score);
             scoreDisplay.setColor(COLOR(60, 226, 10));
 
             randomNewElement();
@@ -78,15 +87,15 @@ struct Board {
             resetHighestNumber();
 
             if (noE >= 13) {
-                Text GameOver(dimension / 2, dimension / 2 - 10, "Game Over o_0");
+                Text GameOver(sideLength / 2., sideLength / 2. - 10, "Game Over o_0");
                 GameOver.setColor(COLOR(60, 226, 10));
                 wait(2);
                 {
-                    Text FinalScoreMessage(dimension / 2, dimension / 2 + 10, "Your Score is");
+                    Text FinalScoreMessage(sideLength / 2., sideLength / 2. + 10, "Your Score is");
                     FinalScoreMessage.setColor(COLOR(60, 226, 10));
                     wait(2);
                 }
-                Text FinalScore(dimension / 2, dimension / 2 + 10, score);
+                Text FinalScore(sideLength / 2., sideLength / 2. + 10, score);
                 FinalScore.setColor(COLOR(60, 226, 10));
 
                 wait(2);
@@ -97,45 +106,35 @@ struct Board {
     }
 
     void initialize() {
-        noE = 0;
-        score = 0;
-        highestNumber = 0;
-        maxE = 13;
-        sectorAngle = 0;
-        //
-        // cout<<"Enter the dimension"<<endl;
-        // cin>>dimension;
-        dimension = 1000;
         cout << "Enter your Name (No spaces)" << endl;
         cin >> userName;
-        initCanvas("Game0n", dimension, dimension);
-        // square canvas of sidelenght 'dimension'
+        initCanvas("Game0n Fusion", sideLength, sideLength);
 
-        E = new Element *[maxE];
-        for (int i = 0; i < maxE; i++) {
-            E[i] = nullptr;
-        }// initializes the all 'E[i]' pointers to nullptr as no elements are there
-        Rectangle B0(dimension / 2, dimension / 2, dimension, dimension);
+        elements = new Element *[maxElements];
+        for (int i = 0; i < maxElements; i++) {
+            elements[i] = nullptr;
+        }// initializes the all 'elements[i]' pointers to nullptr as no elements are there
+        Rectangle B0(sideLength / 2, sideLength / 2, sideLength, sideLength);
         B0.setColor(COLOR(0, 0, 0));
         B0.setFill(1);
         B0.imprint();
-        Circle B1(dimension / 2, dimension / 2, dimension / 2 - 10);
+        Circle B1(sideLength / 2, sideLength / 2, sideLength / 2 - 10);
         B1.setColor(COLOR(20, 20, 20));
         B1.setFill(1);
         B1.imprint();
-        Circle B2(dimension / 2, dimension / 2, dimension / 10);
+        Circle B2(sideLength / 2, sideLength / 2, sideLength / 10);
         B2.setColor(COLOR(5, 5, 5));
         B2.setFill(1);
         B2.imprint();
 
         // B1 B2 are boundary circles
 
-    }// inititalizes the 'Board' part
+    }// renders Board
 
     void resetHighestNumber() {
-        for (int i = 0; i < maxE; i++) {
-            if (E[i] != nullptr) {
-                if (E[i]->name > highestNumber) highestNumber = E[i]->name;
+        for (int i = 0; i < maxElements; i++) {
+            if (elements[i] != nullptr) {
+                if (elements[i]->name > highestNumber) highestNumber = elements[i]->name;
             }
         }
     }
@@ -161,18 +160,18 @@ struct Board {
 
     void userClick(Element newElement) {
         int nullPointerIndex;
-        for (nullPointerIndex = 0; nullPointerIndex < maxE; nullPointerIndex++) {
-            if (E[nullPointerIndex] == nullptr) { break; }
+        for (nullPointerIndex = 0; nullPointerIndex < maxElements; nullPointerIndex++) {
+            if (elements[nullPointerIndex] == nullptr) { break; }
         }
-        if (nullPointerIndex == maxE) { nullPointerIndex = -1; }
-        // if there is any E[i] pointer left pointing to nullptr 'nullPointerIndex' has its index (or) if no such pointer is present then it is set to value -1
+        if (nullPointerIndex == maxElements) { nullPointerIndex = -1; }
+        // if there is any elements[i] pointer left pointing to nullptr 'nullPointerIndex' has its index (or) if no such pointer is present then it is set to value -1
 
         // cout<<nullPointerIndex<<endl;
 
-        E[nullPointerIndex] = new Element;
-        *E[nullPointerIndex] = newElement;
-        E[nullPointerIndex]->pointedByIndex = nullPointerIndex;
-        // E[nullPointerIndex] is set to the new incomming Element
+        elements[nullPointerIndex] = new Element;
+        *elements[nullPointerIndex] = newElement;
+        elements[nullPointerIndex]->pointedByIndex = nullPointerIndex;
+        // elements[nullPointerIndex] is set to the new incomming Element
         // 'noE' 'sectorAngle' Element.'sector' are TO BE re-assigned
 
         if (noE == 0) {
@@ -180,33 +179,33 @@ struct Board {
         }
 
         Vector2d *click = registerClick();
-        Vector2d center(dimension / 12., dimension - dimension / 12.);
+        Vector2d center(sideLength / 12., sideLength - sideLength / 12.);
         Vector2d *clickToCenter = center - *click;
-        if (~*clickToCenter <= dimension / 10.) {
+        if (~*clickToCenter <= sideLength / 10.) {
             resetHighScore();
         }
 
         // High Score Insertion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         double theta;
-        theta = signedSlope(dimension / 2., dimension / 2., click->x, click->y); // theta has the 0 to 359 value
+        theta = signedSlope(sideLength / 2., sideLength / 2., click->x, click->y); // theta has the 0 to 359 value
         delete click, clickToCenter;
         int sectorNoSource;
 
         sectorNoSource = (theta / sectorAngle);
-        E[nullPointerIndex]->sector = sectorNoSource;
+        elements[nullPointerIndex]->sector = sectorNoSource;
 
-        for (int i = 0; i < maxE; i++) {
-            if (E[i] != nullptr && i != nullPointerIndex) {
-                if (E[i]->sector > E[nullPointerIndex]->sector) {
-                    E[i]->sector++;
+        for (int i = 0; i < maxElements; i++) {
+            if (elements[i] != nullptr && i != nullPointerIndex) {
+                if (elements[i]->sector > elements[nullPointerIndex]->sector) {
+                    elements[i]->sector++;
                 }
             }
         }
 
         if (noE != 0) {
-            E[nullPointerIndex]->sector++;
-        }// Increases all the Element.'sector' by 1 whose value is greater than E[nullPointerIndex]->sector And
-        // Also increases E[nullPointerIndex]->sector by 1 for the noE != 0 case
+            elements[nullPointerIndex]->sector++;
+        }// Increases all the Element.'sector' by 1 whose value is greater than elements[nullPointerIndex]->sector And
+        // Also increases elements[nullPointerIndex]->sector by 1 for the noE != 0 case
 
         noE++;
         if (noE == 0) {
@@ -224,18 +223,18 @@ struct Board {
     // noE is also increased ,Element.'sector' is assigned and 'pointedByIndex' and 'sectorAngle' is taken care of
 
     void anyCombo() {
-        Element *dupElements[maxE];
-        for (int i = 0; i < maxE; i++) {
+        Element *dupElements[maxElements];
+        for (int i = 0; i < maxElements; i++) {
             dupElements[i] = nullptr;
         }// All the 'Dup'pointers point to 'nullptr'
 
-        for (int i = 0; i < maxE; i++) {
-            if (E[i] != nullptr) {
-                dupElements[E[i]->sector] = E[i];
+        for (int i = 0; i < maxElements; i++) {
+            if (elements[i] != nullptr) {
+                dupElements[elements[i]->sector] = elements[i];
             }
-        }// 'Dup' Pointers set such that Dup[i] points to E[j] whose E[i]->sector is i
+        }// 'Dup' Pointers set such that Dup[i] points to elements[j] whose elements[i]->sector is i
         // 'Dup' Pointers are stored in stack and points to heap
-        // As 'E' pointers already point to same Elements in heap ,the heap memeory pointed to at by 'Dup' pointers must NOT be freed(deleted)
+        // As 'elements' pointers already point to same Elements in heap ,the heap memeory pointed to at by 'Dup' pointers must NOT be freed(deleted)
 
         int comboChecker = 0;
         int startingPoint;
@@ -282,14 +281,14 @@ struct Board {
         }
 
         // This part is executed only if comboChecker > 0 ----------------------------------------------------------------------------
-        Text Mixing(dimension / 2, dimension / 2, "MIXING ELEMENTS");
+        Text Mixing(sideLength / 2, sideLength / 2, "MIXING ELEMENTS");
         Mixing.setColor(COLOR(60, 226, 10));
 
         int newName = 0;
 
         // 'score' taken care of
         // startingPoint.'name' is increased as 'newName' but not assigned
-        // all combo 'E[i]' memory is freed ,set to point 'nullptr' , corresponding 'Dup[j]' is set to 'nullptr'
+        // all combo 'elements[i]' memory is freed ,set to point 'nullptr' , corresponding 'Dup[j]' is set to 'nullptr'
         for (int i = 1; i <= comboChecker; i++) {
             int CW = (startingPoint + i) % noE;
             int ACW = (startingPoint - i) % noE;
@@ -300,21 +299,21 @@ struct Board {
             newName = newName + dupElements[CW]->name + 1;
 
             /*
-            E[Dup[CW]->pointedByIndex]->circle.scale(1.5);
-            E[Dup[ACW]->pointedByIndex]->circle.scale(1.5);
+            elements[Dup[CW]->pointedByIndex]->circle.scale(1.5);
+            elements[Dup[ACW]->pointedByIndex]->circle.scale(1.5);
             wait(0.3);
 
-            E[Dup[CW]->pointedByIndex]->circle.scale(2/3);
-            E[Dup[ACW]->pointedByIndex]->circle.scale(2/3);
+            elements[Dup[CW]->pointedByIndex]->circle.scale(2/3);
+            elements[Dup[ACW]->pointedByIndex]->circle.scale(2/3);
             wait(0.3);*/
 
-            bubblingEffect(E[dupElements[CW]->pointedByIndex], E[dupElements[ACW]->pointedByIndex]);
+            bubblingEffect(elements[dupElements[CW]->pointedByIndex], elements[dupElements[ACW]->pointedByIndex]);
 
-            E[dupElements[CW]->pointedByIndex] = nullptr;
+            elements[dupElements[CW]->pointedByIndex] = nullptr;
             delete dupElements[CW];
             dupElements[CW] = nullptr;
 
-            E[dupElements[ACW]->pointedByIndex] = nullptr;
+            elements[dupElements[ACW]->pointedByIndex] = nullptr;
             delete dupElements[ACW];
             dupElements[ACW] = nullptr;
 
@@ -374,17 +373,17 @@ struct Board {
     }
 
     void arrTheElements() {
-        for (int i = 0; i < maxE; i++) {
-            if (E[i] != nullptr) {
-                E[i]->setSector(sectorAngle);
+        for (int i = 0; i < maxElements; i++) {
+            if (elements[i] != nullptr) {
+                elements[i]->setSector(sectorAngle);
             }
         }
     }
 
     void comboTheElements() {
-        for (int i = 0; i < maxE; i++) {
-            if (E[i] != nullptr) {
-                E[i]->setSector(sectorAngle);
+        for (int i = 0; i < maxElements; i++) {
+            if (elements[i] != nullptr) {
+                elements[i]->setSector(sectorAngle);
             }
         }
         if (comboContinue)anyCombo();
@@ -392,8 +391,8 @@ struct Board {
 
     int notNullCount() {
         int count = 0;
-        for (int i = 0; i < maxE; i++) {
-            if (E[i] != nullptr) {
+        for (int i = 0; i < maxElements; i++) {
+            if (elements[i] != nullptr) {
                 count++;
             }
         }
@@ -458,7 +457,7 @@ struct Board {
         double tempRadius1 = radius1;
         double tempRadius2 = radius2;
 
-        double range = dimension / 40.;
+        double range = sideLength / 40.;
         int radChanger = 1;
         int halfCycleCounter = 0;
         while (true) {
@@ -480,7 +479,7 @@ struct Board {
     }
 
     ~Board() {
-        delete[] E;
+        delete[] elements;
         closeCanvas();
     }
 };
