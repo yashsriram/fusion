@@ -103,11 +103,6 @@ struct Board {
         highestNumber = 0;
         maxE = 13;
         sectorAngle = 0;
-        highScoreFileInput.open(".HighScore.txt");
-        if (!highScoreFileInput.is_open()) {
-            cout << "Error Opening HighScore file" << endl;
-            exit(true);
-        }
         //
         // cout<<"Enter the dimension"<<endl;
         // cin>>dimension;
@@ -154,6 +149,7 @@ struct Board {
             userClick(newElement);
 
             randomVar = (randomVar + 1) % 5;
+            return;
         }
 
         if (noE > 0 && noE < 13) {
@@ -161,6 +157,7 @@ struct Board {
             userClick(newElement);
 
             randomVar = (randomVar + 1) % 5;
+            return;
         }
 
     }// Element type var 'newElement' is "GIVEN" a pointer 'noE' ,Element.'sectorNo' and 'sectorAngle' are taken care of
@@ -282,7 +279,7 @@ struct Board {
         }// comboChecker has the number of mixings for the first-comming name == 'plus(5)' Element only
 
         if (comboChecker == 0) {
-
+            return;
         }
 
         // This part is executed only if comboChecker > 0 ----------------------------------------------------------------------------
@@ -391,7 +388,6 @@ struct Board {
                 E[i]->resetTheElementUsingSectorNo(sectorAngle);
             }
         }
-        // cout<<"out of loop"<<endl;
         if (comboContinue)anyCombo();
     }
 
@@ -426,7 +422,7 @@ struct Board {
         highScoreFileInput.close();
         // cout<<HighScore<<endl;
 
-        allScoresFileOutput.open(".allScoresFileOutput.txt", ios::app);
+        allScoresFileOutput.open("AllScoresFileOutput.txt", ios::app);
         if (!allScoresFileOutput.is_open()) {
             cout << "Error Opening All Scores file" << endl;
             exit(true);
