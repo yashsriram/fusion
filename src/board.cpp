@@ -189,7 +189,8 @@ struct Board {
         // High Score Insertion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         double theta;
         theta = signedSlope(dimension / 2., dimension / 2., click->x, click->y); // theta has the 0 to 359 value
-        delete click, clickToCenter;
+        delete click;
+        delete clickToCenter;
         int sectorNoSource;
 
         sectorNoSource = (theta / sectorAngle);
@@ -421,7 +422,7 @@ struct Board {
         highScoreFileInput.close();
         // cout<<HighScore<<endl;
 
-        allScoresFileOutput.open("AllScoresFileOutput.txt", ios::app);
+        allScoresFileOutput.open("AllScoresFile.txt", ios::app);
         if (!allScoresFileOutput.is_open()) {
             cout << "Error Opening All Scores file" << endl;
             exit(true);
