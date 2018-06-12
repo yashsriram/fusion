@@ -1,39 +1,13 @@
 #include <simplecpp>
 #include <fstream>
 #include "element.cpp"
-#include "vector2d.cpp"
+#include "utils.cpp"
 
 int dimension;// dimension of Square Canvas
 int maxE;// Maximum number of elements on Board (excluding the center one)
 int randomVar = 0;// random variable for color and name
 int cR = 1, cG = 2, cB = 3;// random variables for colors
 bool comboContinue;
-
-Vector2d *registerClick() {
-    const int twoPower16 = 65536;
-    int point;
-    point = getClick();
-    double x = point / (double) twoPower16;
-    double y = point % twoPower16;
-    return new Vector2d(x, y);
-}
-
-// (the order of input matters) OUTPUT -pi to pi
-double signedSlope(double x1, double y1, double x2, double y2) {
-    double cosineOfAngle, angle;
-    if ((x2 - x1) != 0) {
-        cosineOfAngle = ((x2 - x1) / sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
-        angle = arccosine(cosineOfAngle);
-        if (y2 - y1 >= 0)return angle;
-        if (y2 - y1 < 0)return 360 - angle;
-    }
-
-    if ((x2 - x1) == 0) {
-        if (y2 - y1 > 0) return 90;
-        if (y2 - y1 < 0) return 270;
-    }
-    return 0;
-}
 
 struct Board {
     int noE;
@@ -179,18 +153,18 @@ struct Board {
             sectorAngle = 360;
         }
 
-        Vector2d *click = registerClick();
+        Vector2d pointOfClick;
+        registerClick(&pointOfClick);
         Vector2d center(dimension / 12., dimension - dimension / 12.);
-        Vector2d *clickToCenter = center - *click;
-        if (~*clickToCenter <= dimension / 10.) {
+        double distance = Vector2d().setDiffOf(&center, &pointOfClick)->mod();
+
+        if (distance <= dimension / 10.) {
             resetHighScore();
         }
 
-        // High Score Insertion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // High Score Insertion
         double theta;
-        theta = signedSlope(dimension / 2., dimension / 2., click->x, click->y); // theta has the 0 to 359 value
-        delete click;
-        delete clickToCenter;
+        theta = rayAngle(dimension / 2., dimension / 2., pointOfClick.x, pointOfClick.y); // theta has the 0 to 359 value
         int sectorNoSource;
 
         sectorNoSource = (theta / sectorAngle);
@@ -422,7 +396,7 @@ struct Board {
         highScoreFileInput.close();
         // cout<<HighScore<<endl;
 
-        allScoresFileOutput.open("AllScoresFile.txt", ios::app);
+        allScoresFileOutput.open("AllScores.txt", ios::app);
         if (!allScoresFileOutput.is_open()) {
             cout << "Error Opening All Scores file" << endl;
             exit(true);
