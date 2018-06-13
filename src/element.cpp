@@ -34,7 +34,7 @@ struct Element {
         text.setColor(COLOR(60, 226, 10));
     }
 
-    // 'x' and 'y' reset using 'sector' and Board.'sectorAngle'
+    // 'x' and 'y' reset using 'sector' and Board.'currentSectorAngle'
     void setSector(double sectorAngle) {
         x = dimension / 2.0 + (dimension * 2.0 / 5) * cosine(sectorAngle * sector);
         y = dimension / 2.0 + (dimension * 2.0 / 5) * sine(sectorAngle * sector);

@@ -20,7 +20,7 @@ struct Board {
     // state
     int noElements;
     int score;
-    double sectorAngle;
+    double currentSectorAngle;
     bool comboContinue;
     Element **elements;
 
@@ -38,7 +38,7 @@ struct Board {
     Board() : MAX_ELEMENTS(13),
               noElements(0),
               score(0),
-              sectorAngle(0),
+              currentSectorAngle(360),
               comboContinue(false),
               elements(new Element *[MAX_ELEMENTS]) {
 
@@ -74,8 +74,6 @@ struct Board {
         innerCircle.setColor(COLOR(5, 5, 5)).setFill();
         innerCircle.imprint();
 
-        Circle exitBox(dimension / 12., dimension * 11 / 12., dimension / 10.);
-
         Text exitText(dimension / 12., dimension * 11 / 12., "EXIT");
         exitText.setColor(COLOR_CHAURESTE).imprint();
 
@@ -107,7 +105,9 @@ struct Board {
             highestNumberTextView->reset(dimension / 12., dimension / 12., getHighestNumber());
             scoreTextView->reset(dimension - dimension / 12., dimension / 12., score);
 
-            randomNewElement();
+            int newElementIndex = spawnNewElement();
+            placeNewElement(newElementIndex);
+            randomVar = (randomVar + 1) % 5;
             anyCombo();
 
             if (noElements >= 13) {
@@ -124,87 +124,67 @@ struct Board {
 
                 wait(2);
 
-                resetHighScore();
+                exitGame();
             }
         }
     }
 
-    void randomNewElement() {
-        // Element type var 'newElement' is "GIVEN" a pointer 'noElements' ,Element.'sector' and 'sectorAngle' are taken care of
-        if (noElements == 0) {
-            Element newElement;// A new Element Comes in the center
-            userClick(newElement);
-            randomVar = (randomVar + 1) % 5;
-        } else if (noElements > 0 && noElements < MAX_ELEMENTS) {
-            Element newElement;// A new Element comes in the center
-            userClick(newElement);
-            randomVar = (randomVar + 1) % 5;
+    int spawnNewElement() {
+        int newElementIndex = -1;
+        if (noElements >= 0 && noElements < MAX_ELEMENTS) {
+            for (newElementIndex = 0; newElementIndex < MAX_ELEMENTS; newElementIndex++) {
+                if (elements[newElementIndex] == nullptr) { break; }
+            }
+            if (newElementIndex == MAX_ELEMENTS) { newElementIndex = -1; }
+
+            elements[newElementIndex] = new Element();
+            elements[newElementIndex]->pointedByIndex = newElementIndex;
         }
+        return newElementIndex;
     }
 
-    // A free pointer is set to point 'Element' type in heap and the 'newElement' is assigned to it
-    // noElements is also increased ,Element.'sector' is assigned and 'pointedByIndex' and 'sectorAngle' is taken care of
-    void userClick(Element newElement) {
-        int nullPointerIndex;
-        for (nullPointerIndex = 0; nullPointerIndex < MAX_ELEMENTS; nullPointerIndex++) {
-            if (elements[nullPointerIndex] == nullptr) { break; }
-        }
-        if (nullPointerIndex == MAX_ELEMENTS) { nullPointerIndex = -1; }
 
-
-        elements[nullPointerIndex] = new Element;
-        *elements[nullPointerIndex] = newElement;
-        elements[nullPointerIndex]->pointedByIndex = nullPointerIndex;
-        // elements[nullPointerIndex] is set to the new incomming Element
-        // 'noElements' 'sectorAngle' Element.'sector' are TO BE re-assigned
-
-        if (noElements == 0) {
-            sectorAngle = 360;
-        }
-
+    void placeNewElement(int newElementIndex) {
         Vector2d pointOfClick;
         registerClick(&pointOfClick);
-        Vector2d center(dimension / 12., dimension - dimension / 12.);
-        double distance = Vector2d().setDiffOf(&center, &pointOfClick)->mod();
 
+        // exit pressed ?
+        Vector2d exitCenter(dimension / 12., dimension - dimension / 12.);
+        double distance = Vector2d().setDiffOf(&exitCenter, &pointOfClick)->mod();
         if (distance <= dimension / 10.) {
-            resetHighScore();
+            exitGame();
         }
 
-        // High Score Insertion
-        double theta;
-        theta = rayAngle(dimension / 2., dimension / 2., pointOfClick.x,
-                         pointOfClick.y); // theta has the 0 to 359 value
-        int sectorNoSource;
-
-        sectorNoSource = (theta / sectorAngle);
-        elements[nullPointerIndex]->sector = sectorNoSource;
-
+        // get sector of new element
+        // theta has the 0 to 359 value
+        double theta = rayAngle(dimension / 2., dimension / 2., pointOfClick.x, pointOfClick.y);
+        int sectorNoSource = theta / currentSectorAngle;
+        elements[newElementIndex]->sector = sectorNoSource;
+        // push all the next elements to their next sectors
         for (int i = 0; i < MAX_ELEMENTS; i++) {
-            if (elements[i] != nullptr && i != nullPointerIndex) {
-                if (elements[i]->sector > elements[nullPointerIndex]->sector) {
+            if (elements[i] != nullptr && i != newElementIndex) {
+                if (elements[i]->sector > elements[newElementIndex]->sector) {
                     elements[i]->sector++;
                 }
             }
         }
-
+        // Push the new element to next sector for the noElements != 0 case
         if (noElements != 0) {
-            elements[nullPointerIndex]->sector++;
-        }// Increases all the Element.'sector' by 1 whose value is greater than elements[nullPointerIndex]->sector And
-        // Also increases elements[nullPointerIndex]->sector by 1 for the noElements != 0 case
-
+            elements[newElementIndex]->sector++;
+        }
         noElements++;
+
         if (noElements == 0) {
-            sectorAngle = 360;
-        }
-        if (noElements > 0) {
-            sectorAngle = 360. / noElements;
-        }
-        if (noElements < 0) {
-            cout << "Some Problem with the Code" << endl;
+            currentSectorAngle = 360;
+        } else if (noElements > 0) {
+            currentSectorAngle = 360. / noElements;
         }
 
-        arrTheElements();
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
+            if (elements[i] != nullptr) {
+                elements[i]->setSector(currentSectorAngle);
+            }
+        }
     }
 
     void anyCombo() {
@@ -343,48 +323,30 @@ struct Board {
         noElements = noElements - 2 * comboChecker;// 'noElements' is taken care of
 
         if (noElements == 0) {
-            sectorAngle = 360;
+            currentSectorAngle = 360;
         }
         if (noElements > 0) {
-            sectorAngle = 360. / noElements;
+            currentSectorAngle = 360. / noElements;
         }
         if (noElements < 0) {
             cout << "Some Problem with the Code" << endl;
-        }// 'sectorAngle' is taken care of
+        }// 'currentSectorAngle' is taken care of
 
         comboTheElements();
 
 
     }
 
-    void arrTheElements() {
-        for (int i = 0; i < MAX_ELEMENTS; i++) {
-            if (elements[i] != nullptr) {
-                elements[i]->setSector(sectorAngle);
-            }
-        }
-    }
-
     void comboTheElements() {
         for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
-                elements[i]->setSector(sectorAngle);
+                elements[i]->setSector(currentSectorAngle);
             }
         }
         if (comboContinue)anyCombo();
     }
 
-    int notNullCount() {
-        int count = 0;
-        for (int i = 0; i < MAX_ELEMENTS; i++) {
-            if (elements[i] != nullptr) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    void resetHighScore() {
+    void exitGame() {
         string line;
         highScoreFileInput >> line;
         int length = line.length();
