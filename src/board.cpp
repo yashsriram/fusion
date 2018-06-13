@@ -1,40 +1,14 @@
 #include <simplecpp>
 #include <fstream>
 #include "element.cpp"
-#include "vector2d.cpp"
+#include "utils.cpp"
 
-int randomVar = 0;// random variable for color and name
-int cR = 1, cG = 2, cB = 3;// random variables for colors
-
-Vector2d *registerClick() {
-    const int twoPower16 = 65536;
-    int point;
-    point = getClick();
-    double x = point / (double) twoPower16;
-    double y = point % twoPower16;
-    return new Vector2d(x, y);
-}
-
-// (the order of input matters) OUTPUT -pi to pi
-double signedSlope(double x1, double y1, double x2, double y2) {
-    double cosineOfAngle, angle;
-    if ((x2 - x1) != 0) {
-        cosineOfAngle = ((x2 - x1) / sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
-        angle = arccosine(cosineOfAngle);
-        if (y2 - y1 >= 0)return angle;
-        if (y2 - y1 < 0)return 360 - angle;
-    }
-
-    if ((x2 - x1) == 0) {
-        if (y2 - y1 > 0) return 90;
-        if (y2 - y1 < 0) return 270;
-    }
-    return 0;
-}
+const int dimension = 1000; // dimension of Square Canvas
+int randomVar = 0; // random variable for color and name
+int cR = 1, cG = 2, cB = 3; // random variables for colors
 
 struct Board {
-    const int sideLength; // Side length of Square Canvas
-    const int maxElements; // Maximum number of elements on board (excluding the center one)
+    const int maxElements; // excluding the center one
 
     // state
     int noE;
@@ -50,36 +24,42 @@ struct Board {
     ofstream highScoreFileOutput;
     ofstream allScoresFileOutput;
 
-    Board(int sideLength, int maxElements) : sideLength(sideLength),
-                                             maxElements(maxElements),
-                                             noE(0),
-                                             score(0),
-                                             highestNumber(0),
-                                             sectorAngle(0) {
-        initialize();
+    Board() : maxElements(13),
+              noE(0),
+              score(0),
+              highestNumber(0),
+              sectorAngle(0),
+              comboContinue(false),
+              elements(new Element *[maxElements]) {
 
-        Text noEDisplayBox(sideLength - sideLength / 12., sideLength - sideLength / 12. - sideLength / 50.,
+        for (int i = 0; i < maxElements; i++) {
+            elements[i] = nullptr;
+        }// initializes the all 'elements[i]' pointers to nullptr as no elements are there
+
+        render();
+
+        Text noEDisplayBox(dimension - dimension / 12., dimension - dimension / 12. - dimension / 50.,
                            "ELEMENTS ON BOARD");
         noEDisplayBox.setColor(COLOR(60, 226, 10));
 
-        Text highestNumberDisplayBox(sideLength / 12., sideLength / 12. - sideLength / 50., "HIGHEST NUMBER ACHIEVED");
+        Text highestNumberDisplayBox(dimension / 12., dimension / 12. - dimension / 50., "HIGHEST NUMBER ACHIEVED");
         highestNumberDisplayBox.setColor(COLOR(60, 226, 10));
 
-        Text scoreDisplayBox(sideLength - sideLength / 12., sideLength / 12. - sideLength / 50., "SCORE");
+        Text scoreDisplayBox(dimension - dimension / 12., dimension / 12. - dimension / 50., "SCORE");
         scoreDisplayBox.setColor(COLOR(60, 226, 10));
 
-        Circle exitBox(sideLength / 12., sideLength - sideLength / 12., sideLength / 10.);
-        Text exitMessage(sideLength / 12., sideLength - sideLength / 12., "EXIT");
-        exitMessage.setColor(COLOR(60, 226, 10));
+        Circle exitBox(dimension / 12., dimension - dimension / 12., dimension / 10.);
+        Text Exit(dimension / 12., dimension - dimension / 12., "EXIT");
+        Exit.setColor(COLOR(60, 226, 10));
 
         while (true) {
-            Text noEDisplay(sideLength - sideLength / 12., sideLength - sideLength / 12., noE);
+            Text noEDisplay(dimension - dimension / 12., dimension - dimension / 12., noE);
             noEDisplay.setColor(COLOR(60, 226, 10));
 
-            Text highestNumberDisplay(sideLength / 12., sideLength / 12., highestNumber);
+            Text highestNumberDisplay(dimension / 12., dimension / 12., highestNumber);
             highestNumberDisplay.setColor(COLOR(60, 226, 10));
 
-            Text scoreDisplay(sideLength - sideLength / 12., sideLength / 12., score);
+            Text scoreDisplay(dimension - dimension / 12., dimension / 12., score);
             scoreDisplay.setColor(COLOR(60, 226, 10));
 
             randomNewElement();
@@ -87,15 +67,15 @@ struct Board {
             resetHighestNumber();
 
             if (noE >= 13) {
-                Text GameOver(sideLength / 2., sideLength / 2. - 10, "Game Over o_0");
+                Text GameOver(dimension / 2., dimension / 2. - 10, "Game Over o_0");
                 GameOver.setColor(COLOR(60, 226, 10));
                 wait(2);
                 {
-                    Text FinalScoreMessage(sideLength / 2., sideLength / 2. + 10, "Your Score is");
+                    Text FinalScoreMessage(dimension / 2., dimension / 2. + 10, "Your Score is");
                     FinalScoreMessage.setColor(COLOR(60, 226, 10));
                     wait(2);
                 }
-                Text FinalScore(sideLength / 2., sideLength / 2. + 10, score);
+                Text FinalScore(dimension / 2., dimension / 2. + 10, score);
                 FinalScore.setColor(COLOR(60, 226, 10));
 
                 wait(2);
@@ -105,31 +85,26 @@ struct Board {
         }
     }
 
-    void initialize() {
+    void render() {
         cout << "Enter your Name (No spaces)" << endl;
         cin >> userName;
-        initCanvas("Game0n Fusion", sideLength, sideLength);
+        initCanvas("Game0n", dimension, dimension);
 
-        elements = new Element *[maxElements];
-        for (int i = 0; i < maxElements; i++) {
-            elements[i] = nullptr;
-        }// initializes the all 'elements[i]' pointers to nullptr as no elements are there
-        Rectangle B0(sideLength / 2, sideLength / 2, sideLength, sideLength);
-        B0.setColor(COLOR(0, 0, 0));
-        B0.setFill(1);
-        B0.imprint();
-        Circle B1(sideLength / 2, sideLength / 2, sideLength / 2 - 10);
-        B1.setColor(COLOR(20, 20, 20));
-        B1.setFill(1);
-        B1.imprint();
-        Circle B2(sideLength / 2, sideLength / 2, sideLength / 10);
-        B2.setColor(COLOR(5, 5, 5));
-        B2.setFill(1);
-        B2.imprint();
+        Rectangle base(dimension / 2., dimension / 2., dimension, dimension);
+        base.setColor(COLOR(0, 0, 0));
+        base.setFill();
+        base.imprint();
 
-        // B1 B2 are boundary circles
+        Circle outerCircle(dimension / 2., dimension / 2., dimension / 2. - 10);
+        outerCircle.setColor(COLOR(20, 20, 20));
+        outerCircle.setFill();
+        outerCircle.imprint();
 
-    }// renders Board
+        Circle innerCircle(dimension / 2., dimension / 2., dimension / 10.);
+        innerCircle.setColor(COLOR(5, 5, 5));
+        innerCircle.setFill();
+        innerCircle.imprint();
+    }
 
     void resetHighestNumber() {
         for (int i = 0; i < maxElements; i++) {
@@ -178,17 +153,19 @@ struct Board {
             sectorAngle = 360;
         }
 
-        Vector2d *click = registerClick();
-        Vector2d center(sideLength / 12., sideLength - sideLength / 12.);
-        Vector2d *clickToCenter = center - *click;
-        if (~*clickToCenter <= sideLength / 10.) {
+        Vector2d pointOfClick;
+        registerClick(&pointOfClick);
+        Vector2d center(dimension / 12., dimension - dimension / 12.);
+        double distance = Vector2d().setDiffOf(&center, &pointOfClick)->mod();
+
+        if (distance <= dimension / 10.) {
             resetHighScore();
         }
 
-        // High Score Insertion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // High Score Insertion
         double theta;
-        theta = signedSlope(sideLength / 2., sideLength / 2., click->x, click->y); // theta has the 0 to 359 value
-        delete click, clickToCenter;
+        theta = rayAngle(dimension / 2., dimension / 2., pointOfClick.x,
+                         pointOfClick.y); // theta has the 0 to 359 value
         int sectorNoSource;
 
         sectorNoSource = (theta / sectorAngle);
@@ -281,7 +258,7 @@ struct Board {
         }
 
         // This part is executed only if comboChecker > 0 ----------------------------------------------------------------------------
-        Text Mixing(sideLength / 2, sideLength / 2, "MIXING ELEMENTS");
+        Text Mixing(dimension / 2., dimension / 2., "MIXING ELEMENTS");
         Mixing.setColor(COLOR(60, 226, 10));
 
         int newName = 0;
@@ -420,7 +397,7 @@ struct Board {
         highScoreFileInput.close();
         // cout<<HighScore<<endl;
 
-        allScoresFileOutput.open("AllScoresFileOutput.txt", ios::app);
+        allScoresFileOutput.open("AllScores.txt", ios::app);
         if (!allScoresFileOutput.is_open()) {
             cout << "Error Opening All Scores file" << endl;
             exit(true);

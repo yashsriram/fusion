@@ -1,10 +1,8 @@
 #include<simplecpp>
 
-extern int dimension;
+extern const int dimension;
 extern int randomVar;
-extern int cR;
-extern int cG;
-extern int cB;
+extern int cR, cG, cB;
 
 struct Element {
     // state
