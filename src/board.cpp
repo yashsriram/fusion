@@ -4,25 +4,30 @@
 #include "utils.cpp"
 
 const int dimension = 1000; // dimension of Square Canvas
-int randomVar = 0; // random variable for color and name
+int randomVar = 0; // random variable for color and number
 int cR = 1, cG = 2, cB = 3; // random variables for colors
 
 struct Board {
-    const int MAX_ELEMENTS; // excluding the center one
+    /**
+     * Max number of stable elements are MAX_ELEMENTS - 1
+     * A transition of MAX_ELEMENTS elements is possible if it creates a combo and fusion occurs
+     * else the game ends on MAX_ELEMENTS elements
+     * excluding the center one
+     * */
+    const int MAX_ELEMENTS;
     const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
 
     // state
-    int noE;
+    int noElements;
     int score;
-    int highestNumber;
     double sectorAngle;
     bool comboContinue;
     Element **elements;
 
     // graphics
-    Text* noElementsTextView;
-    Text* highestNumberTextView;
-    Text* scoreTextView;
+    Text *noElementsTextView;
+    Text *highestNumberTextView;
+    Text *scoreTextView;
 
     // meta data
     string userName;
@@ -31,9 +36,8 @@ struct Board {
     ofstream allScoresFileOutput;
 
     Board() : MAX_ELEMENTS(13),
-              noE(0),
+              noElements(0),
               score(0),
-              highestNumber(0),
               sectorAngle(0),
               comboContinue(false),
               elements(new Element *[MAX_ELEMENTS]) {
@@ -44,8 +48,17 @@ struct Board {
         }
     }
 
+
+    ~Board() {
+        delete[] elements;
+        delete noElementsTextView;
+        delete highestNumberTextView;
+        delete scoreTextView;
+        closeCanvas();
+    }
+
     void render() {
-        cout << "Enter your name (No spaces):" << endl;
+        cout << "Enter your number (No spaces):" << endl;
         cin >> userName;
         initCanvas("Game0n", dimension, dimension);
 
@@ -67,7 +80,8 @@ struct Board {
         exitText.setColor(COLOR_CHAURESTE).imprint();
 
         // Text Views
-        noElementsTextView = new Text(dimension * 11 / 12., dimension * (11 / 12.) - dimension / 50., "ELEMENTS ON BOARD");
+        noElementsTextView = new Text(dimension * 11 / 12., dimension * (11 / 12.) - dimension / 50.,
+                                      "ELEMENTS ON BOARD");
         noElementsTextView->setColor(COLOR_CHAURESTE).imprint();
 
         highestNumberTextView = new Text(dimension / 12., dimension / 12. - dimension / 50., "HIGHEST NUMBER ACHIEVED");
@@ -77,17 +91,26 @@ struct Board {
         scoreTextView->setColor(COLOR_CHAURESTE).imprint();
     }
 
+    int getHighestNumber() {
+        int highestNumber = 0;
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
+            if (elements[i] != nullptr) {
+                if (elements[i]->number > highestNumber) { highestNumber = elements[i]->number; }
+            }
+        }
+        return highestNumber;
+    }
+
     void startGameLoop() {
         while (true) {
-            noElementsTextView->reset(dimension - dimension / 12., dimension - dimension / 12., noE);
-            highestNumberTextView->reset(dimension / 12., dimension / 12., highestNumber);
+            noElementsTextView->reset(dimension - dimension / 12., dimension - dimension / 12., noElements);
+            highestNumberTextView->reset(dimension / 12., dimension / 12., getHighestNumber());
             scoreTextView->reset(dimension - dimension / 12., dimension / 12., score);
 
             randomNewElement();
             anyCombo();
-            resetHighestNumber();
 
-            if (noE >= 13) {
+            if (noElements >= 13) {
                 Text GameOver(dimension / 2., dimension / 2. - 10, "Game Over o_0");
                 GameOver.setColor(COLOR_CHAURESTE);
                 wait(2);
@@ -106,50 +129,36 @@ struct Board {
         }
     }
 
-    void resetHighestNumber() {
-        for (int i = 0; i < MAX_ELEMENTS; i++) {
-            if (elements[i] != nullptr) {
-                if (elements[i]->name > highestNumber) highestNumber = elements[i]->name;
-            }
+    void randomNewElement() {
+        // Element type var 'newElement' is "GIVEN" a pointer 'noElements' ,Element.'sector' and 'sectorAngle' are taken care of
+        if (noElements == 0) {
+            Element newElement;// A new Element Comes in the center
+            userClick(newElement);
+            randomVar = (randomVar + 1) % 5;
+        } else if (noElements > 0 && noElements < MAX_ELEMENTS) {
+            Element newElement;// A new Element comes in the center
+            userClick(newElement);
+            randomVar = (randomVar + 1) % 5;
         }
     }
 
-    void randomNewElement() {
-        // Max number of elements are 12. A transition of 13 is possible if it Decreases 'noE' (or) the Game Ends then
-        if (noE == 0) {
-            Element newElement;// A new Element Comes in the center
-            userClick(newElement);
-
-            randomVar = (randomVar + 1) % 5;
-            return;
-        }
-
-        if (noE > 0 && noE < 13) {
-            Element newElement;// A new Element comes in the center
-            userClick(newElement);
-
-            randomVar = (randomVar + 1) % 5;
-            return;
-        }
-    }// Element type var 'newElement' is "GIVEN" a pointer 'noE' ,Element.'sector' and 'sectorAngle' are taken care of
-
+    // A free pointer is set to point 'Element' type in heap and the 'newElement' is assigned to it
+    // noElements is also increased ,Element.'sector' is assigned and 'pointedByIndex' and 'sectorAngle' is taken care of
     void userClick(Element newElement) {
         int nullPointerIndex;
         for (nullPointerIndex = 0; nullPointerIndex < MAX_ELEMENTS; nullPointerIndex++) {
             if (elements[nullPointerIndex] == nullptr) { break; }
         }
         if (nullPointerIndex == MAX_ELEMENTS) { nullPointerIndex = -1; }
-        // if there is any elements[i] pointer left pointing to nullptr 'nullPointerIndex' has its index (or) if no such pointer is present then it is set to value -1
 
-        // cout<<nullPointerIndex<<endl;
 
         elements[nullPointerIndex] = new Element;
         *elements[nullPointerIndex] = newElement;
         elements[nullPointerIndex]->pointedByIndex = nullPointerIndex;
         // elements[nullPointerIndex] is set to the new incomming Element
-        // 'noE' 'sectorAngle' Element.'sector' are TO BE re-assigned
+        // 'noElements' 'sectorAngle' Element.'sector' are TO BE re-assigned
 
-        if (noE == 0) {
+        if (noElements == 0) {
             sectorAngle = 360;
         }
 
@@ -179,25 +188,24 @@ struct Board {
             }
         }
 
-        if (noE != 0) {
+        if (noElements != 0) {
             elements[nullPointerIndex]->sector++;
         }// Increases all the Element.'sector' by 1 whose value is greater than elements[nullPointerIndex]->sector And
-        // Also increases elements[nullPointerIndex]->sector by 1 for the noE != 0 case
+        // Also increases elements[nullPointerIndex]->sector by 1 for the noElements != 0 case
 
-        noE++;
-        if (noE == 0) {
+        noElements++;
+        if (noElements == 0) {
             sectorAngle = 360;
         }
-        if (noE > 0) {
-            sectorAngle = 360. / noE;
+        if (noElements > 0) {
+            sectorAngle = 360. / noElements;
         }
-        if (noE < 0) {
+        if (noElements < 0) {
             cout << "Some Problem with the Code" << endl;
         }
 
         arrTheElements();
-    }// A pointer pointing to nullptr is declared to point 'Element' type in heap and the 'newElement' is assigned to it
-    // noE is also increased ,Element.'sector' is assigned and 'pointedByIndex' and 'sectorAngle' is taken care of
+    }
 
     void anyCombo() {
         Element *dupElements[MAX_ELEMENTS];
@@ -215,34 +223,34 @@ struct Board {
 
         int comboChecker = 0;
         int startingPoint;
-        for (int i = 0; i < noE; i++) {
-            if (noE < 3) {
+        for (int i = 0; i < noElements; i++) {
+            if (noElements < 3) {
                 comboChecker = 0;
                 break;
             }
 
-            if ((dupElements[i]->name) % 5 == 1) {
+            if ((dupElements[i]->number) % 5 == 1) {
                 startingPoint = i;
                 comboChecker = 1;
                 while (true) {
-                    int CW = (startingPoint + comboChecker) % noE;
-                    int ACW = (startingPoint - comboChecker) % noE;
+                    int CW = (startingPoint + comboChecker) % noElements;
+                    int ACW = (startingPoint - comboChecker) % noElements;
                     if (ACW < 0) {
-                        ACW = ACW + noE;
+                        ACW = ACW + noElements;
                     }
                     // 'CW' and 'ACW' go round the circle
 
-                    if ((abs(CW - ACW) == 1 || abs(CW - ACW) == noE - 1) &&
-                        dupElements[CW]->name == dupElements[ACW]->name) {
+                    if ((abs(CW - ACW) == 1 || abs(CW - ACW) == noElements - 1) &&
+                        dupElements[CW]->number == dupElements[ACW]->number) {
                         break;
                     }
 
-                    if ((dupElements[CW]->name != dupElements[ACW]->name) || CW == ACW) {
+                    if ((dupElements[CW]->number != dupElements[ACW]->number) || CW == ACW) {
                         comboChecker--;
                         break;
                     }
 
-                    if (dupElements[CW]->name == dupElements[ACW]->name) {
+                    if (dupElements[CW]->number == dupElements[ACW]->number) {
                         comboChecker++;
                     }
                 }
@@ -251,7 +259,7 @@ struct Board {
                 comboContinue = true;
                 break;
             }
-        }// comboChecker has the number of mixings for the first-comming name == 'plus(5)' Element only
+        }// comboChecker has the number of mixings for the first-comming number == 'plus(5)' Element only
 
         if (comboChecker == 0) {
             return;
@@ -264,16 +272,16 @@ struct Board {
         int newName = 0;
 
         // 'score' taken care of
-        // startingPoint.'name' is increased as 'newName' but not assigned
+        // startingPoint.'number' is increased as 'newName' but not assigned
         // all combo 'elements[i]' memory is freed ,set to point 'nullptr' , corresponding 'Dup[j]' is set to 'nullptr'
         for (int i = 1; i <= comboChecker; i++) {
-            int CW = (startingPoint + i) % noE;
-            int ACW = (startingPoint - i) % noE;
+            int CW = (startingPoint + i) % noElements;
+            int ACW = (startingPoint - i) % noElements;
             if (ACW < 0) {
-                ACW = ACW + noE;
+                ACW = ACW + noElements;
             }
 
-            newName = newName + dupElements[CW]->name + 1;
+            newName = newName + dupElements[CW]->number + 1;
 
             /*
             elements[Dup[CW]->pointedByIndex]->circle.scale(1.5);
@@ -297,17 +305,17 @@ struct Board {
             score = score + 1;
         }
 
-        dupElements[(startingPoint) % noE]->updateNameAndColor(newName);
+        dupElements[(startingPoint) % noElements]->updateNameAndColor(newName);
 
         if (dupElements[0] != nullptr) {
             // cout<<"Dup[0] != nullptr case"<<endl;
             if (startingPoint == 0) {
                 for (int i = 1; true; i++) {
-                    int point = (startingPoint + comboChecker + i) % noE;
+                    int point = (startingPoint + comboChecker + i) % noElements;
                     if (dupElements[point] == nullptr)break;
                     if (point == 0)cout << "Some Problem with the Code" << endl;
                     dupElements[point]->sector = dupElements[point]->sector - comboChecker;
-                    if (point == (noE - 1))cout << "Some Problem with the Code" << endl;
+                    if (point == (noElements - 1))cout << "Some Problem with the Code" << endl;
                 }
             } else if (startingPoint > 0) {
                 int SectorNoChanger = dupElements[startingPoint]->sector;
@@ -315,32 +323,32 @@ struct Board {
                 dupElements[startingPoint]->sector = SectorNoChanger;
 
                 for (int i = 1; true; i++) {
-                    int point = (startingPoint + comboChecker + i) % noE;
+                    int point = (startingPoint + comboChecker + i) % noElements;
                     if (point == 0)break;
                     dupElements[point]->sector = dupElements[point]->sector - 2 * comboChecker;
-                    if (point == (noE - 1))break;
+                    if (point == (noElements - 1))break;
                 }
             }
         } else if (dupElements[0] == nullptr) {
             // cout<<"Dup[0] == nullptr case"<<endl;
             dupElements[startingPoint]->sector = 0;
 
-            int noTimes = noE - 2 * comboChecker - 1;
+            int noTimes = noElements - 2 * comboChecker - 1;
             for (int i = 1; i <= noTimes; i++) {
-                int point = (startingPoint + comboChecker + i) % noE;
-                dupElements[point]->sector = i % (noE - 2 * comboChecker);
+                int point = (startingPoint + comboChecker + i) % noElements;
+                dupElements[point]->sector = i % (noElements - 2 * comboChecker);
             }
         }// Element.'sector' is taken care of
 
-        noE = noE - 2 * comboChecker;// 'noE' is taken care of
+        noElements = noElements - 2 * comboChecker;// 'noElements' is taken care of
 
-        if (noE == 0) {
+        if (noElements == 0) {
             sectorAngle = 360;
         }
-        if (noE > 0) {
-            sectorAngle = 360. / noE;
+        if (noElements > 0) {
+            sectorAngle = 360. / noElements;
         }
-        if (noE < 0) {
+        if (noElements < 0) {
             cout << "Some Problem with the Code" << endl;
         }// 'sectorAngle' is taken care of
 
@@ -455,11 +463,4 @@ struct Board {
         }
     }
 
-    ~Board() {
-        delete[] elements;
-        delete noElementsTextView;
-        delete highestNumberTextView;
-        delete scoreTextView;
-        closeCanvas();
-    }
 };

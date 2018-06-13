@@ -14,7 +14,7 @@ struct Element {
     Text text;
 
     // meta data
-    int name; // name that appears on the screen
+    int number; // appears on the screen and > 0
     int sector; // the sector number which it is in
     int pointedByIndex; // has the index of the Board.'elements' pointer which points to this in the heap
 
@@ -23,14 +23,14 @@ struct Element {
         sector = -1;
         pointedByIndex = -1; // not Pointed by any Board.'elements[i]' pointer
         radius = dimension * 4 / 50.0;
-        name = randomVar + 1; // randomness comes from here
+        number = randomVar + 1; // randomness comes from here
         x = dimension / 2.0;
         y = dimension / 2.0;
 
         // render
         circle = Circle(dimension / 2.0, dimension / 2.0, radius);
         setBgColor();
-        text = Text(dimension / 2.0, dimension / 2.0, name);
+        text = Text(dimension / 2.0, dimension / 2.0, number);
         text.setColor(COLOR(60, 226, 10));
     }
 
@@ -49,24 +49,24 @@ struct Element {
     }
 
     void updateNameAndColor(int newName) {
-        name = newName;
-        Text source(x, y, name);
+        number = newName;
+        Text source(x, y, number);
         text = source;
         text.setColor(COLOR(60, 226, 10));
         setBgColor();
     }
 
     void setBgColor() {
-        if (name % 5 == 1) {
-            circle.setColor(COLOR(20 + cR, 50 + cG, name * cB));
-        } else if (name % 5 == 2) {
-            circle.setColor(COLOR(name * cR, 20 + cG, 50 + cB));
-        } else if (name % 5 == 3) {
-            circle.setColor(COLOR(20 + cR, name * cG, 50 + cB));
-        } else if (name % 5 == 4) {
-            circle.setColor(COLOR(50 + cR, 20 + cG, name * cB));
-        } else if (name % 5 == 0) {
-            circle.setColor(COLOR(name * cR, 50 + cG, 20 + cB));
+        if (number % 5 == 1) {
+            circle.setColor(COLOR(20 + cR, 50 + cG, number * cB));
+        } else if (number % 5 == 2) {
+            circle.setColor(COLOR(number * cR, 20 + cG, 50 + cB));
+        } else if (number % 5 == 3) {
+            circle.setColor(COLOR(20 + cR, number * cG, 50 + cB));
+        } else if (number % 5 == 4) {
+            circle.setColor(COLOR(50 + cR, 20 + cG, number * cB));
+        } else if (number % 5 == 0) {
+            circle.setColor(COLOR(number * cR, 50 + cG, 20 + cB));
         }
     }
 
