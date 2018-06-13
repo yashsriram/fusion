@@ -8,7 +8,8 @@ int randomVar = 0; // random variable for color and name
 int cR = 1, cG = 2, cB = 3; // random variables for colors
 
 struct Board {
-    const int maxElements; // excluding the center one
+    const int MAX_ELEMENTS; // excluding the center one
+    const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
 
     // state
     int noE;
@@ -24,65 +25,21 @@ struct Board {
     ofstream highScoreFileOutput;
     ofstream allScoresFileOutput;
 
-    Board() : maxElements(13),
+    Board() : MAX_ELEMENTS(13),
               noE(0),
               score(0),
               highestNumber(0),
               sectorAngle(0),
               comboContinue(false),
-              elements(new Element *[maxElements]) {
+              elements(new Element *[MAX_ELEMENTS]) {
 
-        for (int i = 0; i < maxElements; i++) {
+        // initializes elements to nullptr
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             elements[i] = nullptr;
-        }// initializes the all 'elements[i]' pointers to nullptr as no elements are there
+        }
 
         render();
-
-        Text noEDisplayBox(dimension - dimension / 12., dimension - dimension / 12. - dimension / 50.,
-                           "ELEMENTS ON BOARD");
-        noEDisplayBox.setColor(COLOR(60, 226, 10));
-
-        Text highestNumberDisplayBox(dimension / 12., dimension / 12. - dimension / 50., "HIGHEST NUMBER ACHIEVED");
-        highestNumberDisplayBox.setColor(COLOR(60, 226, 10));
-
-        Text scoreDisplayBox(dimension - dimension / 12., dimension / 12. - dimension / 50., "SCORE");
-        scoreDisplayBox.setColor(COLOR(60, 226, 10));
-
-        Circle exitBox(dimension / 12., dimension - dimension / 12., dimension / 10.);
-        Text Exit(dimension / 12., dimension - dimension / 12., "EXIT");
-        Exit.setColor(COLOR(60, 226, 10));
-
-        while (true) {
-            Text noEDisplay(dimension - dimension / 12., dimension - dimension / 12., noE);
-            noEDisplay.setColor(COLOR(60, 226, 10));
-
-            Text highestNumberDisplay(dimension / 12., dimension / 12., highestNumber);
-            highestNumberDisplay.setColor(COLOR(60, 226, 10));
-
-            Text scoreDisplay(dimension - dimension / 12., dimension / 12., score);
-            scoreDisplay.setColor(COLOR(60, 226, 10));
-
-            randomNewElement();
-            anyCombo();
-            resetHighestNumber();
-
-            if (noE >= 13) {
-                Text GameOver(dimension / 2., dimension / 2. - 10, "Game Over o_0");
-                GameOver.setColor(COLOR(60, 226, 10));
-                wait(2);
-                {
-                    Text FinalScoreMessage(dimension / 2., dimension / 2. + 10, "Your Score is");
-                    FinalScoreMessage.setColor(COLOR(60, 226, 10));
-                    wait(2);
-                }
-                Text FinalScore(dimension / 2., dimension / 2. + 10, score);
-                FinalScore.setColor(COLOR(60, 226, 10));
-
-                wait(2);
-
-                resetHighScore();
-            }
-        }
+        startGameLoop();
     }
 
     void render() {
@@ -91,23 +48,72 @@ struct Board {
         initCanvas("Game0n", dimension, dimension);
 
         Rectangle base(dimension / 2., dimension / 2., dimension, dimension);
-        base.setColor(COLOR(0, 0, 0));
-        base.setFill();
+        base.setColor(COLOR(0, 0, 0)).setFill();
         base.imprint();
 
         Circle outerCircle(dimension / 2., dimension / 2., dimension / 2. - 10);
-        outerCircle.setColor(COLOR(20, 20, 20));
-        outerCircle.setFill();
+        outerCircle.setColor(COLOR(20, 20, 20)).setFill();
         outerCircle.imprint();
 
         Circle innerCircle(dimension / 2., dimension / 2., dimension / 10.);
-        innerCircle.setColor(COLOR(5, 5, 5));
-        innerCircle.setFill();
+        innerCircle.setColor(COLOR(5, 5, 5)).setFill();
         innerCircle.imprint();
+
+        Text noEDisplayBox(dimension * 11 / 12., dimension * (11 / 12.) - dimension / 50., "ELEMENTS ON BOARD");
+        noEDisplayBox.setColor(COLOR_CHAURESTE).setFill();
+        noEDisplayBox.imprint();
+
+        Text highestNumberDisplayBox(dimension / 12., dimension / 12. - dimension / 50., "HIGHEST NUMBER ACHIEVED");
+        highestNumberDisplayBox.setColor(COLOR_CHAURESTE).setFill();
+        highestNumberDisplayBox.imprint();
+
+        Text scoreDisplayBox(dimension * 11 / 12., dimension / 12. - dimension / 50., "SCORE");
+        scoreDisplayBox.setColor(COLOR_CHAURESTE).setFill();
+        scoreDisplayBox.imprint();
+
+        Circle exitBox(dimension / 12., dimension * 11 / 12., dimension / 10.);
+
+        Text exitText(dimension / 12., dimension * 11 / 12., "EXIT");
+        exitText.setColor(COLOR_CHAURESTE).setFill();
+        exitText.imprint();
+    }
+
+    void startGameLoop() {
+        while (true) {
+            Text noEDisplay(dimension - dimension / 12., dimension - dimension / 12., noE);
+            noEDisplay.setColor(COLOR_CHAURESTE);
+
+            Text highestNumberDisplay(dimension / 12., dimension / 12., highestNumber);
+            highestNumberDisplay.setColor(COLOR_CHAURESTE);
+
+            Text scoreDisplay(dimension - dimension / 12., dimension / 12., score);
+            scoreDisplay.setColor(COLOR_CHAURESTE);
+
+            randomNewElement();
+            anyCombo();
+            resetHighestNumber();
+
+            if (noE >= 13) {
+                Text GameOver(dimension / 2., dimension / 2. - 10, "Game Over o_0");
+                GameOver.setColor(COLOR_CHAURESTE);
+                wait(2);
+                {
+                    Text FinalScoreMessage(dimension / 2., dimension / 2. + 10, "Your Score is");
+                    FinalScoreMessage.setColor(COLOR_CHAURESTE);
+                    wait(2);
+                }
+                Text FinalScore(dimension / 2., dimension / 2. + 10, score);
+                FinalScore.setColor(COLOR_CHAURESTE);
+
+                wait(2);
+
+                resetHighScore();
+            }
+        }
     }
 
     void resetHighestNumber() {
-        for (int i = 0; i < maxElements; i++) {
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
                 if (elements[i]->name > highestNumber) highestNumber = elements[i]->name;
             }
@@ -135,10 +141,10 @@ struct Board {
 
     void userClick(Element newElement) {
         int nullPointerIndex;
-        for (nullPointerIndex = 0; nullPointerIndex < maxElements; nullPointerIndex++) {
+        for (nullPointerIndex = 0; nullPointerIndex < MAX_ELEMENTS; nullPointerIndex++) {
             if (elements[nullPointerIndex] == nullptr) { break; }
         }
-        if (nullPointerIndex == maxElements) { nullPointerIndex = -1; }
+        if (nullPointerIndex == MAX_ELEMENTS) { nullPointerIndex = -1; }
         // if there is any elements[i] pointer left pointing to nullptr 'nullPointerIndex' has its index (or) if no such pointer is present then it is set to value -1
 
         // cout<<nullPointerIndex<<endl;
@@ -171,7 +177,7 @@ struct Board {
         sectorNoSource = (theta / sectorAngle);
         elements[nullPointerIndex]->sector = sectorNoSource;
 
-        for (int i = 0; i < maxElements; i++) {
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr && i != nullPointerIndex) {
                 if (elements[i]->sector > elements[nullPointerIndex]->sector) {
                     elements[i]->sector++;
@@ -200,12 +206,12 @@ struct Board {
     // noE is also increased ,Element.'sector' is assigned and 'pointedByIndex' and 'sectorAngle' is taken care of
 
     void anyCombo() {
-        Element *dupElements[maxElements];
-        for (int i = 0; i < maxElements; i++) {
+        Element *dupElements[MAX_ELEMENTS];
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             dupElements[i] = nullptr;
         }// All the 'Dup'pointers point to 'nullptr'
 
-        for (int i = 0; i < maxElements; i++) {
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
                 dupElements[elements[i]->sector] = elements[i];
             }
@@ -259,7 +265,7 @@ struct Board {
 
         // This part is executed only if comboChecker > 0 ----------------------------------------------------------------------------
         Text Mixing(dimension / 2., dimension / 2., "MIXING ELEMENTS");
-        Mixing.setColor(COLOR(60, 226, 10));
+        Mixing.setColor(COLOR_CHAURESTE);
 
         int newName = 0;
 
@@ -350,7 +356,7 @@ struct Board {
     }
 
     void arrTheElements() {
-        for (int i = 0; i < maxElements; i++) {
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
                 elements[i]->setSector(sectorAngle);
             }
@@ -358,7 +364,7 @@ struct Board {
     }
 
     void comboTheElements() {
-        for (int i = 0; i < maxElements; i++) {
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
                 elements[i]->setSector(sectorAngle);
             }
@@ -368,7 +374,7 @@ struct Board {
 
     int notNullCount() {
         int count = 0;
-        for (int i = 0; i < maxElements; i++) {
+        for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
                 count++;
             }
