@@ -434,7 +434,7 @@ struct Board {
         double tempRadius1 = radius1;
         double tempRadius2 = radius2;
 
-        double range = sideLength / 40.;
+        double range = dimension / 40.;
         int radChanger = 1;
         int halfCycleCounter = 0;
         while (true) {
