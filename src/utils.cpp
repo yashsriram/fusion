@@ -25,10 +25,18 @@ double rayAngle(double x1, double y1, double x2, double y2) {
         else if (y2 - y1 < 0) { return 270; }
         else { return 0; }
     } else {
-        double cosineOfAngle = (x2 - x1) / Vector2d(x2 - x1, y2 - y1).mod();
+        double cosineOfAngle = (x2 - x1) / Vector2d(x2 - x1, y2 - y1).length();
         double angle = arccosine(cosineOfAngle);
         if (y2 - y1 >= 0) { return angle; }
         else { return 360 - angle; }
     }
 }
 
+/**
+ * Returns the angle made by ray with X-axis in degrees
+ * the order of the args matter
+ * output range from 0 to 359
+ * */
+double rayAngle(const Vector2d *a, const Vector2d *b) {
+    return rayAngle(a->x, a->y, b->x, b->y);
+}

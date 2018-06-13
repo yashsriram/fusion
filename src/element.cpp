@@ -1,6 +1,6 @@
 #include<simplecpp>
 
-extern const int dimension;
+extern const int WINDOW_SIDE_LENGTH;
 extern int randomVar;
 extern int cR, cG, cB;
 
@@ -22,22 +22,22 @@ struct Element {
         // init state
         sector = -1;
         pointedByIndex = -1; // not Pointed by any Board.'elements[i]' pointer
-        radius = dimension * 4 / 50.0;
+        radius = WINDOW_SIDE_LENGTH * 4 / 50.0;
         number = randomVar + 1; // randomness comes from here
-        x = dimension / 2.0;
-        y = dimension / 2.0;
+        x = WINDOW_SIDE_LENGTH / 2.0;
+        y = WINDOW_SIDE_LENGTH / 2.0;
 
         // render
-        circle = Circle(dimension / 2.0, dimension / 2.0, radius);
+        circle = Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius);
         setBgColor();
-        text = Text(dimension / 2.0, dimension / 2.0, number);
+        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, number);
         text.setColor(COLOR(60, 226, 10));
     }
 
     // 'x' and 'y' reset using 'sector' and Board.'currentSectorAngle'
     void setSector(double sectorAngle) {
-        x = dimension / 2.0 + (dimension * 2.0 / 5) * cosine(sectorAngle * sector);
-        y = dimension / 2.0 + (dimension * 2.0 / 5) * sine(sectorAngle * sector);
+        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(sectorAngle * sector);
+        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(sectorAngle * sector);
         moveElementToXY();
     }
 

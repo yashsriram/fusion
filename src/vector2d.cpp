@@ -7,7 +7,7 @@ struct Vector2d {
 
     Vector2d(double x, double y) : x(x), y(y) {}
 
-    double mod() {
+    double length() {
         return sqrt(x * x + y * y);
     }
 
