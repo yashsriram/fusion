@@ -1,5 +1,7 @@
 #include"board.cpp"
 
 int main() {
-    Board A;
+    Board board;
+    board.render();
+    board.startGameLoop();
 }

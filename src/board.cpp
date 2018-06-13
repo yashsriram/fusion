@@ -19,6 +19,11 @@ struct Board {
     bool comboContinue;
     Element **elements;
 
+    // graphics
+    Text* noElementsTextView;
+    Text* highestNumberTextView;
+    Text* scoreTextView;
+
     // meta data
     string userName;
     ifstream highScoreFileInput;
@@ -37,13 +42,10 @@ struct Board {
         for (int i = 0; i < MAX_ELEMENTS; i++) {
             elements[i] = nullptr;
         }
-
-        render();
-        startGameLoop();
     }
 
     void render() {
-        cout << "Enter your Name (No spaces)" << endl;
+        cout << "Enter your name (No spaces):" << endl;
         cin >> userName;
         initCanvas("Game0n", dimension, dimension);
 
@@ -59,35 +61,27 @@ struct Board {
         innerCircle.setColor(COLOR(5, 5, 5)).setFill();
         innerCircle.imprint();
 
-        Text noEDisplayBox(dimension * 11 / 12., dimension * (11 / 12.) - dimension / 50., "ELEMENTS ON BOARD");
-        noEDisplayBox.setColor(COLOR_CHAURESTE).setFill();
-        noEDisplayBox.imprint();
-
-        Text highestNumberDisplayBox(dimension / 12., dimension / 12. - dimension / 50., "HIGHEST NUMBER ACHIEVED");
-        highestNumberDisplayBox.setColor(COLOR_CHAURESTE).setFill();
-        highestNumberDisplayBox.imprint();
-
-        Text scoreDisplayBox(dimension * 11 / 12., dimension / 12. - dimension / 50., "SCORE");
-        scoreDisplayBox.setColor(COLOR_CHAURESTE).setFill();
-        scoreDisplayBox.imprint();
-
         Circle exitBox(dimension / 12., dimension * 11 / 12., dimension / 10.);
 
         Text exitText(dimension / 12., dimension * 11 / 12., "EXIT");
-        exitText.setColor(COLOR_CHAURESTE).setFill();
-        exitText.imprint();
+        exitText.setColor(COLOR_CHAURESTE).imprint();
+
+        // Text Views
+        noElementsTextView = new Text(dimension * 11 / 12., dimension * (11 / 12.) - dimension / 50., "ELEMENTS ON BOARD");
+        noElementsTextView->setColor(COLOR_CHAURESTE).imprint();
+
+        highestNumberTextView = new Text(dimension / 12., dimension / 12. - dimension / 50., "HIGHEST NUMBER ACHIEVED");
+        highestNumberTextView->setColor(COLOR_CHAURESTE).imprint();
+
+        scoreTextView = new Text(dimension * 11 / 12., dimension / 12. - dimension / 50., "SCORE");
+        scoreTextView->setColor(COLOR_CHAURESTE).imprint();
     }
 
     void startGameLoop() {
         while (true) {
-            Text noEDisplay(dimension - dimension / 12., dimension - dimension / 12., noE);
-            noEDisplay.setColor(COLOR_CHAURESTE);
-
-            Text highestNumberDisplay(dimension / 12., dimension / 12., highestNumber);
-            highestNumberDisplay.setColor(COLOR_CHAURESTE);
-
-            Text scoreDisplay(dimension - dimension / 12., dimension / 12., score);
-            scoreDisplay.setColor(COLOR_CHAURESTE);
+            noElementsTextView->reset(dimension - dimension / 12., dimension - dimension / 12., noE);
+            highestNumberTextView->reset(dimension / 12., dimension / 12., highestNumber);
+            scoreTextView->reset(dimension - dimension / 12., dimension / 12., score);
 
             randomNewElement();
             anyCombo();
@@ -463,6 +457,9 @@ struct Board {
 
     ~Board() {
         delete[] elements;
+        delete noElementsTextView;
+        delete highestNumberTextView;
+        delete scoreTextView;
         closeCanvas();
     }
 };
