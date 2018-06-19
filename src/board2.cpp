@@ -3,13 +3,6 @@
 #include "utils.cpp"
 #include "rtc.cpp"
 
-const int WINDOW_SIDE_LENGTH = 1000; // WINDOW_SIDE_LENGTH of Square Canvas
-const Vector2d CENTER = Vector2d(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2.);
-const Vector2d EXIT_CENTER = Vector2d(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.);
-
-int randomVar = 0; // random variable for color and number
-int cR = 1, cG = 2, cB = 3; // random variables for colors
-
 struct Board {
     /**
      * Max number of stable elements are MAX_ELEMENTS - 1
@@ -17,6 +10,8 @@ struct Board {
      * else the game ends on MAX_ELEMENTS elements
      * excluding the center one
      * */
+    const Vector2d CENTER = Vector2d(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2.);
+    const Vector2d EXIT_CENTER = Vector2d(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.);
     const int MAX_ELEMENTS;
     const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
 

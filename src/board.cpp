@@ -99,7 +99,7 @@ struct Board {
         int highestNumber = 0;
         for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
-                if (elements[i]->number > highestNumber) { highestNumber = elements[i]->number; }
+                if (elements[i]->name > highestNumber) { highestNumber = elements[i]->name; }
             }
         }
         return highestNumber;
@@ -214,7 +214,7 @@ struct Board {
                 break;
             }
 
-            if (elementsBySector[i]->number % 5 == 1) {
+            if (elementsBySector[i]->name % 5 == 1) {
                 startingPoint = i;
                 comboChecker = 1;
                 while (true) {
@@ -226,16 +226,16 @@ struct Board {
                     // 'CW' and 'ACW' go round the circle
 
                     if ((abs(CW - ACW) == 1 || abs(CW - ACW) == noElements - 1) &&
-                        elementsBySector[CW]->number == elementsBySector[ACW]->number) {
+                        elementsBySector[CW]->name == elementsBySector[ACW]->name) {
                         break;
                     }
 
-                    if ((elementsBySector[CW]->number != elementsBySector[ACW]->number) || CW == ACW) {
+                    if ((elementsBySector[CW]->name != elementsBySector[ACW]->name) || CW == ACW) {
                         comboChecker--;
                         break;
                     }
 
-                    if (elementsBySector[CW]->number == elementsBySector[ACW]->number) {
+                    if (elementsBySector[CW]->name == elementsBySector[ACW]->name) {
                         comboChecker++;
                     }
                 }
@@ -266,7 +266,7 @@ struct Board {
                 ACW = ACW + noElements;
             }
 
-            newName = newName + elementsBySector[CW]->number + 1;
+            newName = newName + elementsBySector[CW]->name + 1;
 
             bubblingEffect(elements[elementsBySector[CW]->pointedByIndex], elements[elementsBySector[ACW]->pointedByIndex]);
 
@@ -281,7 +281,7 @@ struct Board {
             score = score + 1;
         }
 
-        elementsBySector[(startingPoint) % noElements]->updateNameAndColor(newName);
+        elementsBySector[(startingPoint) % noElements]->set(newName);
 
         if (elementsBySector[0] != nullptr) {
             // cout<<"Dup[0] != nullptr case"<<endl;

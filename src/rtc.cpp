@@ -63,7 +63,7 @@ public:
     void print() {
         Chair *it = head;
         while (it != nullptr) {
-            printf("%d ", it->person->number);
+            printf("%d ", it->person->name);
             it = it->next;
         }
         printf("\n");
