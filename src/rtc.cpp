@@ -2,14 +2,17 @@
 
 class RoundTableConference {
     class Chair {
-        // TODO Destructor
-
     public:
         Element *person;
         Chair *next;
         Chair *prev;
 
         Chair(Element *person, Chair *next, Chair *prev) : person(person), next(next), prev(prev) {}
+
+        ~Chair() {
+            // free person in this chair
+            delete person;
+        }
     };
 
     Chair *head, *tail;
@@ -90,6 +93,16 @@ public:
             it->person->setSector(i, sectorAngleAfterPlacing);
             it = it->next;
             i++;
+        }
+    }
+
+    ~RoundTableConference() {
+        // free all chairs
+        Chair *it = tail;
+        while (it != nullptr) {
+            Chair *prev = it->prev;
+            delete it;
+            it = prev;
         }
     }
 };

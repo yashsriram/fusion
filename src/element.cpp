@@ -9,9 +9,10 @@ struct Element {
     // graphics
     Circle circle;
     Text text;
+    int name; // appears on the screen and > 0
 
     // meta data
-    int name; // appears on the screen and > 0
+    const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
 
     Element() : radius(WINDOW_SIDE_LENGTH * 4 / 50.0),
                 x(WINDOW_SIDE_LENGTH / 2.0),
@@ -20,7 +21,7 @@ struct Element {
                 name(randomVar + 1) {
         setBgColor();
         text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, name);
-        text.setColor(COLOR(60, 226, 10));
+        text.setColor(COLOR_CHAURESTE);
     }
 
     void setSector(int sectorNo, double sectorAngle) {
@@ -33,11 +34,10 @@ struct Element {
         circle.setFill();
     }
 
-    void set(int newName) {
+    void setName(int newName) {
         name = newName;
-        Text source(x, y, name);
-        text = source;
-        text.setColor(COLOR(60, 226, 10));
+        text.reset(x, y, name);
+        text.setColor(COLOR_CHAURESTE);
         setBgColor();
     }
 
