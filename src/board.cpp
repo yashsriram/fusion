@@ -160,22 +160,22 @@ struct Board {
             exitGame();
         }
 
-        // get sector of new element
+        // get sectorNo of new element
         // theta has the 0 to 359 value
         double theta = rayAngle(&CENTER, &pointOfClick);
         int sectorNoSource = theta / currentSectorAngle;
-        elements[newElementIndex]->sector = sectorNoSource;
+        elements[newElementIndex]->sectorNo = sectorNoSource;
         // push all the next elements to their next sectors
         for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr && i != newElementIndex) {
-                if (elements[i]->sector > elements[newElementIndex]->sector) {
-                    elements[i]->sector++;
+                if (elements[i]->sectorNo > elements[newElementIndex]->sectorNo) {
+                    elements[i]->sectorNo++;
                 }
             }
         }
-        // Push the new element to next sector for the noElements != 0 case
+        // Push the new element to next sectorNo for the noElements != 0 case
         if (noElements != 0) {
-            elements[newElementIndex]->sector++;
+            elements[newElementIndex]->sectorNo++;
         }
         noElements++;
 
@@ -193,7 +193,7 @@ struct Board {
     }
 
     void checkForCombo() {
-        // elementsBySector are such that elementsBySector[i] points to elements[j] whose elements[i]->sector is i
+        // elementsBySector are such that elementsBySector[i] points to elements[j] whose elements[i]->sectorNo is i
         // elementsBySector are stored in stack and points to heap
         // As elements pointers already point to same Elements in heap, the heap memory pointed to at by elementsBySector pointers must NOT be freed
         Element *elementsBySector[MAX_ELEMENTS];
@@ -202,7 +202,7 @@ struct Board {
         }
         for (int i = 0; i < MAX_ELEMENTS; i++) {
             if (elements[i] != nullptr) {
-                elementsBySector[elements[i]->sector] = elements[i];
+                elementsBySector[elements[i]->sectorNo] = elements[i];
             }
         }
 
@@ -290,31 +290,31 @@ struct Board {
                     int point = (startingPoint + comboChecker + i) % noElements;
                     if (elementsBySector[point] == nullptr)break;
                     if (point == 0)cout << "Some Problem with the Code" << endl;
-                    elementsBySector[point]->sector = elementsBySector[point]->sector - comboChecker;
+                    elementsBySector[point]->sectorNo = elementsBySector[point]->sectorNo - comboChecker;
                     if (point == (noElements - 1))cout << "Some Problem with the Code" << endl;
                 }
             } else if (startingPoint > 0) {
-                int SectorNoChanger = elementsBySector[startingPoint]->sector;
+                int SectorNoChanger = elementsBySector[startingPoint]->sectorNo;
                 SectorNoChanger = SectorNoChanger - comboChecker;
-                elementsBySector[startingPoint]->sector = SectorNoChanger;
+                elementsBySector[startingPoint]->sectorNo = SectorNoChanger;
 
                 for (int i = 1; true; i++) {
                     int point = (startingPoint + comboChecker + i) % noElements;
                     if (point == 0)break;
-                    elementsBySector[point]->sector = elementsBySector[point]->sector - 2 * comboChecker;
+                    elementsBySector[point]->sectorNo = elementsBySector[point]->sectorNo - 2 * comboChecker;
                     if (point == (noElements - 1))break;
                 }
             }
         } else if (elementsBySector[0] == nullptr) {
             // cout<<"Dup[0] == nullptr case"<<endl;
-            elementsBySector[startingPoint]->sector = 0;
+            elementsBySector[startingPoint]->sectorNo = 0;
 
             int noTimes = noElements - 2 * comboChecker - 1;
             for (int i = 1; i <= noTimes; i++) {
                 int point = (startingPoint + comboChecker + i) % noElements;
-                elementsBySector[point]->sector = i % (noElements - 2 * comboChecker);
+                elementsBySector[point]->sectorNo = i % (noElements - 2 * comboChecker);
             }
-        }// Element.'sector' is taken care of
+        }// Element.'sectorNo' is taken care of
 
         noElements = noElements - 2 * comboChecker;// 'noElements' is taken care of
 

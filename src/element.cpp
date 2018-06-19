@@ -15,13 +15,9 @@ struct Element {
 
     // meta data
     int number; // appears on the screen and > 0
-    int sector; // the sector number which it is in
-    int pointedByIndex; // has the index of the Board.'elements' pointer which points to this in the heap
 
     Element() {
         // init state
-        sector = -1;
-        pointedByIndex = -1; // not Pointed by any Board.'elements[i]' pointer
         radius = WINDOW_SIDE_LENGTH * 4 / 50.0;
         number = randomVar + 1; // randomness comes from here
         x = WINDOW_SIDE_LENGTH / 2.0;
@@ -34,10 +30,11 @@ struct Element {
         text.setColor(COLOR(60, 226, 10));
     }
 
-    // 'x' and 'y' reset using 'sector' and Board.'currentSectorAngle'
-    void setSector(double sectorAngle) {
-        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(sectorAngle * sector);
-        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(sectorAngle * sector);
+    // 'x' and 'y' reset using 'sectorNo' and Board.'currentSectorAngle'
+    void setSector(int sectorNo, double sectorAngle) {
+        printf("%d", sectorNo);
+        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(sectorAngle * sectorNo);
+        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(sectorAngle * sectorNo);
         moveElementToXY();
     }
 
