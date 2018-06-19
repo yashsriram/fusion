@@ -32,9 +32,9 @@ struct Element {
 
     // 'x' and 'y' reset using 'sectorNo' and Board.'currentSectorAngle'
     void setSector(int sectorNo, double sectorAngle) {
-        printf("%d", sectorNo);
-        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(sectorAngle * sectorNo);
-        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(sectorAngle * sectorNo);
+        double theta = sectorAngle * sectorNo;
+        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(theta);
+        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(theta);
         moveElementToXY();
     }
 

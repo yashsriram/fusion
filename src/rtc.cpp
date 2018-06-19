@@ -19,7 +19,7 @@ class RoundTableConference {
     /**
      * sectorNo >= 0
      * */
-    void addChair(int sectorNo) {
+    void addChairAtSector(int sectorNo) {
         if (newlySpawned == nullptr) { throw "Null argument exception"; }
         if (sectorNo < 0) { throw "Illegal argument exception"; }
 
@@ -38,6 +38,7 @@ class RoundTableConference {
         if (newChair->next == nullptr) { tail = newChair; }
         if (newChair->prev == nullptr) { head = newChair; }
         noChairs++;
+        newlySpawned = nullptr;
     }
 
     double getCurrentSectorAngle() {
@@ -79,10 +80,8 @@ public:
      * Assumption: 0 <= theta <= 359
      * */
     void placeNewElement(double theta) {
-        double sectorAngleBeforePlacing = getCurrentSectorAngle();
-        int sectorNo = theta / sectorAngleBeforePlacing;
-        addChair(sectorNo);
-        newlySpawned = nullptr;
+        int sectorNo = theta / getCurrentSectorAngle();
+        addChairAtSector(sectorNo);
 
         Chair *it = head;
         double sectorAngleAfterPlacing = getCurrentSectorAngle();
