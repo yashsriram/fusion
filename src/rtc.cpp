@@ -170,12 +170,11 @@ public:
             // nothing to fuse
             return score;
         }
+        printf("fusion count = %d\n", fusionCount);
 
         // fuse elements
         Text fusingTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., "Fusing Elements...");
         fusingTextView.setColor(COLOR_CHAURESTE);
-
-        printf("fusion count = %d\n", fusionCount);
 
         Chair *fusionCenter = it;
         int newName = 0;
@@ -185,6 +184,7 @@ public:
         for (int i = 0; i < fusionCount; i++) {
             cw = nextCw;
             acw = nextAcw;
+            // update name, score
             newName += cw->person->name + 1;
             score++;
 
