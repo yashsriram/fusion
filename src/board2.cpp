@@ -16,10 +16,7 @@ struct Board {
     const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
 
     // state
-    int noElements;
     int score;
-    double currentSectorAngle;
-    bool comboContinue;
     RoundTableConference rtc;
 
     // graphics
@@ -34,10 +31,7 @@ struct Board {
     ofstream allScoresFileOutput;
 
     Board() : MAX_ELEMENTS(13),
-              noElements(0),
-              score(0),
-              currentSectorAngle(360),
-              comboContinue(false) {
+              score(0) {
     }
 
 
@@ -75,7 +69,7 @@ struct Board {
         noElementsTextView->setColor(COLOR_CHAURESTE).imprint();
 
         highestNumberTextView = new Text(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12. - WINDOW_SIDE_LENGTH / 50.,
-                                         "HIGHEST NUMBER ACHIEVED");
+                                         "HIGHEST ELEMENT ATOMIC No.");
         highestNumberTextView->setColor(COLOR_CHAURESTE).imprint();
 
         scoreTextView = new Text(WINDOW_SIDE_LENGTH * 11 / 12., WINDOW_SIDE_LENGTH / 12. - WINDOW_SIDE_LENGTH / 50.,
@@ -86,8 +80,8 @@ struct Board {
     void startGameLoop() {
         while (true) {
             noElementsTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.,
-                                      WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., noElements);
-            highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., "TODO");
+                                      WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., rtc.getCount());
+            highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., rtc.getHighest());
             scoreTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., score);
 
             rtc.spawn();
@@ -96,7 +90,7 @@ struct Board {
             score += rtc.fuse();
             rtc.print();
 
-            if (noElements >= 13) {
+            if (rtc.getCount() >= 13) {
                 Text GameOver(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10, "Game Over o_0");
                 GameOver.setColor(COLOR_CHAURESTE);
                 wait(2);
@@ -128,10 +122,15 @@ struct Board {
         // get sectorNo of new element
         // theta has the 0 to 359 value
         double theta = rayAngle(&CENTER, &pointOfClick);
-        rtc.placeNewElement(theta);
+        rtc.place(theta);
     }
 
     void exitGame() {
+        highScoreFileInput.open("HighScore.txt");
+        if (!highScoreFileInput.is_open()) {
+            cout << "Error Opening HighScore file" << endl;
+            exit(true);
+        }
         string line;
         highScoreFileInput >> line;
         int length = line.length();

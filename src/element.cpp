@@ -9,7 +9,7 @@ struct Element {
     // graphics
     Circle circle;
     Text text;
-    int name; // appears on the screen and > 0
+    int name; // > 0
 
     // meta data
     const Color COLOR_CHAURESTE = COLOR(60, 226, 10);

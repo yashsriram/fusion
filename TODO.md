@@ -1,4 +1,5 @@
-* Fix high score logic
-* Improve code
-  * Decouple IO from game logic
- 
+- [x] Implement good data structure
+- [ ] Decouple IO from game logic
+- [ ] Fix high score logic
+- [ ] Use better render methods
+- [ ] Close canvas properly

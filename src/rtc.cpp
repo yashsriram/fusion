@@ -74,12 +74,12 @@ class RoundTableConference {
         return noChairs == 0 ? 360.0 : 360.0 / noChairs;
     }
 
-    Chair *getNext(const Chair *chair) {
+    Chair *getNextChair(const Chair *chair) {
         if (chair == nullptr) { throw "Null argument exception"; }
         return chair->next == nullptr ? head : chair->next;
     }
 
-    Chair *getPrev(const Chair *chair) {
+    Chair *getPrevChair(const Chair *chair) {
         if (chair == nullptr) { throw "Null argument exception"; }
         return chair->prev == nullptr ? tail : chair->prev;
     }
@@ -108,6 +108,18 @@ public:
         }
     }
 
+    int getCount() { return noChairs; }
+
+    int getHighest() {
+        int ans = 0;
+        Chair *it = head;
+        while (it != nullptr) {
+            if (it->person->name > ans) { ans = it->person->name; }
+            it = it->next;
+        }
+        return ans;
+    }
+
     void print() {
         Chair *it = head;
         while (it != nullptr) {
@@ -127,16 +139,16 @@ public:
     /**
      * Assumption: 0 <= theta <= 359
      * */
-    void placeNewElement(double theta) {
+    void place(double theta) {
         int sectorNo = theta / getCurrentSectorAngle();
         addChairAtSector(sectorNo);
         rearrangeChairs();
     }
 
-    int fuse(int score = 0) {
+    int fuse(int noFusionsOccured = 0) {
         if (noChairs < 3) {
             // fusion will not occur
-            return score;
+            return noFusionsOccured;
         }
 
         // detect fusable combo
@@ -145,19 +157,19 @@ public:
         while (it != nullptr) {
             if (it->person->isFusingElement()) {
                 // look for combo on either sides
-                Chair *cw = getNext(it);
-                Chair *acw = getPrev(it);
+                Chair *cw = getNextChair(it);
+                Chair *acw = getPrevChair(it);
                 while (true) {
                     if (cw->person->name == acw->person->name) {
                         if (cw != acw) { fusionCount++; } else { break; }
-                        if (getNext(cw) == acw) { break; }
+                        if (getNextChair(cw) == acw) { break; }
                     } else {
                         break;
                     }
 
                     // cw acw go round the circle
-                    cw = getNext(cw);
-                    acw = getPrev(acw);
+                    cw = getNextChair(cw);
+                    acw = getPrevChair(acw);
                 }
             }
             if (fusionCount > 0) {
@@ -168,30 +180,30 @@ public:
 
         if (fusionCount == 0) {
             // nothing to fuse
-            return score;
+            return noFusionsOccured;
         }
         printf("fusion count = %d\n", fusionCount);
 
         // fuse elements
-        Text fusingTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., "Fusing Elements...");
+        Text fusingTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., "FUSING ELEMENTS...");
         fusingTextView.setColor(COLOR_CHAURESTE);
 
         Chair *fusionCenter = it;
         int newName = 0;
         Chair *cw, *acw;
-        Chair *nextCw = getNext(it);
-        Chair *nextAcw = getPrev(it);
+        Chair *nextCw = getNextChair(it);
+        Chair *nextAcw = getPrevChair(it);
         for (int i = 0; i < fusionCount; i++) {
             cw = nextCw;
             acw = nextAcw;
-            // update name, score
+            // update name
             newName += cw->person->name + 1;
-            score++;
+            noFusionsOccured++;
 
             Element::bubblingEffect(cw->person, acw->person);
 
-            nextCw = getNext(cw);
-            nextAcw = getPrev(acw);
+            nextCw = getNextChair(cw);
+            nextAcw = getPrevChair(acw);
 
             removeChair(cw);
             removeChair(acw);
@@ -200,6 +212,6 @@ public:
         fusionCenter->person->setName(newName);
         rearrangeChairs();
 
-        return fuse(score);
+        return fuse(noFusionsOccured);
     }
 };
