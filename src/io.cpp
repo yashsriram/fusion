@@ -1,11 +1,10 @@
 #include <common_def.h>
 #include <fstream>
-#include <string>
 
 const string HIGHSCORE_FILENAME = "highscore.fusion";
 const string ALLSCORES_FILENAME = "allscores.fusion";
 
-void storeScore(string userName, int score) {
+void storeScore(const string &username, int score) {
     ifstream highScoreFileInput;
     ofstream highScoreFileOutput;
     ofstream allScoresFileOutput;
@@ -25,7 +24,7 @@ void storeScore(string userName, int score) {
             printf("Error opening high score file");
             exit(true);
         }
-        highScoreFileOutput << score << " " << userName << endl;
+        highScoreFileOutput << score << " " << username << endl;
         highScoreFileOutput.close();
     }
 
@@ -35,6 +34,6 @@ void storeScore(string userName, int score) {
         exit(true);
     }
 
-    allScoresFileOutput << userName << " " << score << endl;
+    allScoresFileOutput << username << " " << score << endl;
     allScoresFileOutput.close();
 }

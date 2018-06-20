@@ -1,6 +1,10 @@
 - [x] Implement good data structure
 - [x] Decouple IO from game logic
 - [x] Fix high score logic
-- [ ] Fix highest number achieved
 - [ ] Improve game experience
+    - [ ] Highest Element achieved
+    - [ ] Element Symbol
+    - [ ] Randomness
+    - [ ] Score
+    - [ ] Colors
 - [ ] Close canvas properly

@@ -11,6 +11,7 @@ class Board {
 
     // state
     int score;
+    int maxAtomicNumberAchieved;
     RoundTableConference rtc;
 
     // graphics
@@ -24,7 +25,9 @@ class Board {
     void refreshStatsBoard() {
         noElementsTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.,
                                   WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., rtc.getCount());
-        highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., rtc.getHighest());
+        int currentHighest = rtc.getHighest();
+        if (currentHighest > maxAtomicNumberAchieved) { maxAtomicNumberAchieved = currentHighest; }
+        highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., maxAtomicNumberAchieved);
         scoreTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., score);
     }
 
@@ -51,7 +54,8 @@ class Board {
 
 public:
     Board() : MAX_ELEMENTS(12),
-              score(0) {
+              score(0),
+              maxAtomicNumberAchieved(0) {
     }
 
 
