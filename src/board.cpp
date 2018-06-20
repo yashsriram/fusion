@@ -58,7 +58,6 @@ public:
               maxAtomicNumberAchieved(0) {
     }
 
-
     ~Board() {
         delete noElementsTextView;
         delete highestNumberTextView;

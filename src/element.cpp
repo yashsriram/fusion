@@ -1,5 +1,6 @@
-#include<simplecpp>
+#include <simplecpp>
 #include "config.cpp"
+#include "periodictable.cpp"
 
 class Element {
     // state
@@ -9,28 +10,28 @@ class Element {
     // graphics
     Circle circle;
     Text text;
-    int name; // > 0
+    int atomicNumber; // > 0
 
     // meta data
     const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
 
     void setBgColor() {
         Color color;
-        switch (name % 5) {
+        switch (atomicNumber % 5) {
             case 0:
-                color = COLOR(name * cR, 50 + cG, 20 + cB);
+                color = COLOR(atomicNumber * cR, 50 + cG, 20 + cB);
                 break;
             case 1:
-                color = COLOR(20 + cR, 50 + cG, name * cB);
+                color = COLOR(20 + cR, 50 + cG, atomicNumber * cB);
                 break;
             case 2:
-                color = COLOR(name * cR, 20 + cG, 50 + cB);
+                color = COLOR(atomicNumber * cR, 20 + cG, 50 + cB);
                 break;
             case 3:
-                color = COLOR(20 + cR, name * cG, 50 + cB);
+                color = COLOR(20 + cR, atomicNumber * cG, 50 + cB);
                 break;
             case 4:
-                color = COLOR(50 + cR, 20 + cG, name * cB);
+                color = COLOR(50 + cR, 20 + cG, atomicNumber * cB);
                 break;
             default:
                 color = COLOR(cR, cG, cB);
@@ -39,18 +40,22 @@ class Element {
         circle.setColor(color);
     }
 
+    string atomicSymbol() {
+        return getSymbolOfElement(atomicNumber);
+    }
+
 public:
     Element() : radius(WINDOW_SIDE_LENGTH * 4 / 50.0),
                 x(WINDOW_SIDE_LENGTH / 2.0),
                 y(WINDOW_SIDE_LENGTH / 2.0),
                 circle(Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)),
-                name(randomVar + 1) {
+                atomicNumber(randomVar + 1) {
         setBgColor();
-        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, name);
+        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, atomicSymbol());
         text.setColor(COLOR_CHAURESTE);
     }
 
-    int getName() { return name; }
+    int getAtomicNumber() { return atomicNumber; }
 
     void setSector(int sectorNo, double sectorAngle) {
         double theta = sectorAngle * sectorNo;
@@ -63,14 +68,14 @@ public:
     }
 
     void setName(int newName) {
-        name = newName;
-        text.reset(x, y, name);
+        atomicNumber = newName;
+        text.reset(x, y, atomicSymbol());
         text.setColor(COLOR_CHAURESTE);
         setBgColor();
     }
 
     bool isFusingElement() {
-        return name % 5 == 1;
+        return atomicNumber % 5 == 1;
     }
 
     static void bubblingEffect(Element *E1, Element *E2) {

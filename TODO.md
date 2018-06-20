@@ -2,7 +2,7 @@
 - [x] Decouple IO from game logic
 - [x] Fix high score logic
 - [ ] Improve game experience
-    - [ ] Highest Element achieved
+    - [x] Highest Element achieved
     - [ ] Element Symbol
     - [ ] Randomness
     - [ ] Score

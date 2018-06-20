@@ -114,7 +114,7 @@ public:
         int ans = 0;
         Chair *it = head;
         while (it != nullptr) {
-            if (it->person->getName() > ans) { ans = it->person->getName(); }
+            if (it->person->getAtomicNumber() > ans) { ans = it->person->getAtomicNumber(); }
             it = it->next;
         }
         return ans;
@@ -123,7 +123,7 @@ public:
     void print() {
         Chair *it = head;
         while (it != nullptr) {
-            printf("%d ", it->person->getName());
+            printf("%d ", it->person->getAtomicNumber());
             it = it->next;
         }
         printf("\n");
@@ -160,7 +160,7 @@ public:
                 Chair *cw = getNextChair(it);
                 Chair *acw = getPrevChair(it);
                 while (true) {
-                    if (cw->person->getName() == acw->person->getName()) {
+                    if (cw->person->getAtomicNumber() == acw->person->getAtomicNumber()) {
                         if (cw != acw) { fusionCount++; } else { break; }
                         if (getNextChair(cw) == acw) { break; }
                     } else {
@@ -196,8 +196,8 @@ public:
         for (int i = 0; i < fusionCount; i++) {
             cw = nextCw;
             acw = nextAcw;
-            // update name
-            newName += cw->person->getName() + 1;
+            // update atomicNumber
+            newName += cw->person->getAtomicNumber() + 1;
             noFusionsOccured++;
 
             Element::bubblingEffect(cw->person, acw->person);
