@@ -1,7 +1,6 @@
 - [x] Implement good data structure
+- [x] Decouple IO from game logic
+- [x] Fix high score logic
 - [ ] Fix highest number achieved
 - [ ] Improve game experience
-- [ ] Decouple IO from game logic
-- [ ] Fix high score logic
-- [ ] Use better render methods
 - [ ] Close canvas properly
