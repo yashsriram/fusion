@@ -1,7 +1,7 @@
 #include<simplecpp>
 #include "config.cpp"
 
-struct Element {
+class Element {
     // state
     double radius;
     double x, y;
@@ -13,33 +13,6 @@ struct Element {
 
     // meta data
     const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
-
-    Element() : radius(WINDOW_SIDE_LENGTH * 4 / 50.0),
-                x(WINDOW_SIDE_LENGTH / 2.0),
-                y(WINDOW_SIDE_LENGTH / 2.0),
-                circle(Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)),
-                name(randomVar + 1) {
-        setBgColor();
-        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, name);
-        text.setColor(COLOR_CHAURESTE);
-    }
-
-    void setSector(int sectorNo, double sectorAngle) {
-        double theta = sectorAngle * sectorNo;
-        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(theta);
-        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(theta);
-
-        text.moveTo(x, y);
-        circle.moveTo(x, y);
-        circle.setFill();
-    }
-
-    void setName(int newName) {
-        name = newName;
-        text.reset(x, y, name);
-        text.setColor(COLOR_CHAURESTE);
-        setBgColor();
-    }
 
     void setBgColor() {
         Color color;
@@ -64,6 +37,36 @@ struct Element {
                 break;
         }
         circle.setColor(color);
+    }
+
+public:
+    Element() : radius(WINDOW_SIDE_LENGTH * 4 / 50.0),
+                x(WINDOW_SIDE_LENGTH / 2.0),
+                y(WINDOW_SIDE_LENGTH / 2.0),
+                circle(Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)),
+                name(randomVar + 1) {
+        setBgColor();
+        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, name);
+        text.setColor(COLOR_CHAURESTE);
+    }
+
+    int getName() { return name; }
+
+    void setSector(int sectorNo, double sectorAngle) {
+        double theta = sectorAngle * sectorNo;
+        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(theta);
+        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(theta);
+
+        text.moveTo(x, y);
+        circle.moveTo(x, y);
+        circle.setFill();
+    }
+
+    void setName(int newName) {
+        name = newName;
+        text.reset(x, y, name);
+        text.setColor(COLOR_CHAURESTE);
+        setBgColor();
     }
 
     bool isFusingElement() {
