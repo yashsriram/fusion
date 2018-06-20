@@ -188,7 +188,7 @@ public:
         Text fusingTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., "FUSING ELEMENTS...");
         fusingTextView.setColor(COLOR_CHAURESTE);
 
-        Chair *fusionCenter = it;
+        Chair *fusingChair = it;
         int newName = 0;
         Chair *cw, *acw;
         Chair *nextCw = getNextChair(it);
@@ -209,7 +209,7 @@ public:
             removeChair(acw);
         }
 
-        fusionCenter->person->setName(newName);
+        fusingChair->person->setName(newName);
         rearrangeChairs();
 
         return fuse(noFusionsOccured);

@@ -1,7 +1,7 @@
 #include <simplecpp>
-#include <fstream>
 #include "utils.cpp"
 #include "rtc.cpp"
+#include "io.cpp"
 
 class Board {
     const Vector2d CENTER = Vector2d(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2.);
@@ -20,9 +20,6 @@ class Board {
 
     // meta data
     string userName;
-    ifstream highScoreFileInput;
-    ofstream highScoreFileOutput;
-    ofstream allScoresFileOutput;
 
     void refreshStatsBoard() {
         noElementsTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.,
@@ -48,33 +45,7 @@ class Board {
     }
 
     void exitGame() {
-        highScoreFileInput.open("highscore.fusion");
-        int highScore = 0;
-        if (highScoreFileInput.is_open()) {
-            string line;
-            highScoreFileInput >> line;
-            highScore = stoi(line);
-        }
-        highScoreFileInput.close();
-
-        if (score >= highScore) {
-            highScoreFileOutput.open("highscore.fusion");
-            if (!highScoreFileOutput.is_open()) {
-                cout << "Error Opening highScore file" << endl;
-                exit(true);
-            }
-            highScoreFileOutput << score << " " << userName << endl;
-            highScoreFileOutput.close();
-        }
-
-        allScoresFileOutput.open("allscores.fusion", ios::app);
-        if (!allScoresFileOutput.is_open()) {
-            cout << "Error Opening All Scores file" << endl;
-            exit(true);
-        }
-        allScoresFileOutput << userName << " " << score << endl;
-        allScoresFileOutput.close();
-
+        storeScore(userName, score);
         exit(true);
     }
 
