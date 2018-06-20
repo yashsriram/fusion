@@ -93,6 +93,7 @@ struct Board {
             rtc.spawn();
             placeNewElement();
             randomVar = (randomVar + 1) % 5;
+            score += rtc.fuse();
             rtc.print();
 
             if (noElements >= 13) {

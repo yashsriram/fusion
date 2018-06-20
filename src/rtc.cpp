@@ -7,13 +7,17 @@ class RoundTableConference {
         Chair *next;
         Chair *prev;
 
-        Chair(Element *person, Chair *next, Chair *prev) : person(person), next(next), prev(prev) {}
+        Chair(Element *person, Chair *next, Chair *prev) : person(person), next(next), prev(prev) {
+            if (person == nullptr) { throw "Null pointer initialization exception"; }
+        }
 
         ~Chair() {
             // free person in this chair
             delete person;
         }
     };
+
+    const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
 
     Chair *head, *tail;
     Element *newlySpawned;
@@ -26,22 +30,44 @@ class RoundTableConference {
         if (newlySpawned == nullptr) { throw "Null argument exception"; }
         if (sectorNo < 0) { throw "Illegal argument exception"; }
 
-        Chair *justBeforePerson = head;
+        Chair *justBeforeChair = head;
         for (int i = 0; i < sectorNo; ++i) {
-            justBeforePerson = justBeforePerson->next;
+            justBeforeChair = justBeforeChair->next;
         }
-        Chair *justAfterPerson = justBeforePerson == nullptr ? nullptr : justBeforePerson->next;
+        Chair *justAfterChair = justBeforeChair == nullptr ? nullptr : justBeforeChair->next;
 
         // add chair
-        Chair *newChair = new Chair(newlySpawned, justAfterPerson, justBeforePerson);
-        if (justBeforePerson != nullptr) { justBeforePerson->next = newChair; }
-        if (justAfterPerson != nullptr) { justAfterPerson->prev = newChair; }
+        Chair *newChair = new Chair(newlySpawned, justAfterChair, justBeforeChair);
+        if (justBeforeChair != nullptr) { justBeforeChair->next = newChair; }
+        if (justAfterChair != nullptr) { justAfterChair->prev = newChair; }
 
         // reset head and tail
         if (newChair->next == nullptr) { tail = newChair; }
         if (newChair->prev == nullptr) { head = newChair; }
         noChairs++;
         newlySpawned = nullptr;
+    }
+
+    void removeChair(Chair *chair) {
+        if (chair == nullptr) { throw "Null argument exception"; }
+        Chair *justAfterChair = chair->next;
+        Chair *justBeforeChair = chair->prev;
+        if (justAfterChair != nullptr && justBeforeChair != nullptr) {
+            justBeforeChair->next = justAfterChair;
+            justAfterChair->prev = justBeforeChair;
+        } else if (justAfterChair == nullptr && justBeforeChair != nullptr) {
+            justBeforeChair->next = justAfterChair;
+            tail = justBeforeChair;
+        } else if (justAfterChair != nullptr && justBeforeChair == nullptr) {
+            justAfterChair->prev = justBeforeChair;
+            head = justAfterChair;
+        } else {
+            head = justBeforeChair;
+            tail = justAfterChair;
+        }
+        noChairs--;
+
+        delete chair;
     }
 
     double getCurrentSectorAngle() {
@@ -58,10 +84,29 @@ class RoundTableConference {
         return chair->prev == nullptr ? tail : chair->prev;
     }
 
+    void rearrangeChairs() {
+        Chair *it = head;
+        double sectorAngleAfterPlacing = getCurrentSectorAngle();
+        int i = 0;
+        while (it != nullptr) {
+            it->person->setSector(i, sectorAngleAfterPlacing);
+            it = it->next;
+            i++;
+        }
+    }
+
 public:
     RoundTableConference() : head(nullptr), tail(nullptr), newlySpawned(nullptr), noChairs(0) {}
 
-    // TODO Destructor
+    ~RoundTableConference() {
+        // free all chairs
+        Chair *it = tail;
+        while (it != nullptr) {
+            Chair *prev = it->prev;
+            delete it;
+            it = prev;
+        }
+    }
 
     void print() {
         Chair *it = head;
@@ -85,24 +130,76 @@ public:
     void placeNewElement(double theta) {
         int sectorNo = theta / getCurrentSectorAngle();
         addChairAtSector(sectorNo);
-
-        Chair *it = head;
-        double sectorAngleAfterPlacing = getCurrentSectorAngle();
-        int i = 0;
-        while (it != nullptr) {
-            it->person->setSector(i, sectorAngleAfterPlacing);
-            it = it->next;
-            i++;
-        }
+        rearrangeChairs();
     }
 
-    ~RoundTableConference() {
-        // free all chairs
-        Chair *it = tail;
-        while (it != nullptr) {
-            Chair *prev = it->prev;
-            delete it;
-            it = prev;
+    int fuse(int score = 0) {
+        if (noChairs < 3) {
+            // fusion will not occur
+            return score;
         }
+
+        // detect fusable combo
+        int fusionCount = 0;
+        Chair *it = head;
+        while (it != nullptr) {
+            if (it->person->isFusingElement()) {
+                // look for combo on either sides
+                Chair *cw = getNext(it);
+                Chair *acw = getPrev(it);
+                while (true) {
+                    if (cw->person->name == acw->person->name) {
+                        if (cw != acw) { fusionCount++; } else { break; }
+                        if (getNext(cw) == acw) { break; }
+                    } else {
+                        break;
+                    }
+
+                    // cw acw go round the circle
+                    cw = getNext(cw);
+                    acw = getPrev(acw);
+                }
+            }
+            if (fusionCount > 0) {
+                break;
+            }
+            it = it->next;
+        }
+
+        if (fusionCount == 0) {
+            // nothing to fuse
+            return score;
+        }
+
+        // fuse elements
+        Text fusingTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., "Fusing Elements...");
+        fusingTextView.setColor(COLOR_CHAURESTE);
+
+        printf("fusion count = %d\n", fusionCount);
+
+        Chair *fusionCenter = it;
+        int newName = 0;
+        Chair *cw, *acw;
+        Chair *nextCw = getNext(it);
+        Chair *nextAcw = getPrev(it);
+        for (int i = 0; i < fusionCount; i++) {
+            cw = nextCw;
+            acw = nextAcw;
+            newName += cw->person->name + 1;
+            score++;
+
+            Element::bubblingEffect(cw->person, acw->person);
+
+            nextCw = getNext(cw);
+            nextAcw = getPrev(acw);
+
+            removeChair(cw);
+            removeChair(acw);
+        }
+
+        fusionCenter->person->setName(newName);
+        rearrangeChairs();
+
+        return fuse(score);
     }
 };
