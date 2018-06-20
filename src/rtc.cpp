@@ -182,7 +182,7 @@ public:
             // nothing to fuse
             return noFusionsOccured;
         }
-        printf("fusion count = %d\n", fusionCount);
+        // printf("fusion count = %d\n", fusionCount);
 
         // fuse elements
         Text fusingTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., "FUSING ELEMENTS...");

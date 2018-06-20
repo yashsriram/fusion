@@ -3,13 +3,7 @@
 #include "utils.cpp"
 #include "rtc.cpp"
 
-struct Board {
-    /**
-     * Max number of stable elements are MAX_ELEMENTS - 1
-     * A transition of MAX_ELEMENTS elements is possible if it creates a combo and fusion occurs
-     * else the game ends on MAX_ELEMENTS elements
-     * excluding the center one
-     * */
+class Board {
     const Vector2d CENTER = Vector2d(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2.);
     const Vector2d EXIT_CENTER = Vector2d(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.);
     const int MAX_ELEMENTS;
@@ -30,7 +24,62 @@ struct Board {
     ofstream highScoreFileOutput;
     ofstream allScoresFileOutput;
 
-    Board() : MAX_ELEMENTS(13),
+    void refreshStatsBoard() {
+        noElementsTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.,
+                                  WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., rtc.getCount());
+        highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., rtc.getHighest());
+        scoreTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., score);
+    }
+
+    void placeNewElement() {
+        Vector2d pointOfClick;
+        registerClick(&pointOfClick);
+
+        // exit pressed ?
+        double distance = Vector2d().setDiffOf(&EXIT_CENTER, &pointOfClick)->length();
+        if (distance <= WINDOW_SIDE_LENGTH / 10.) {
+            exitGame();
+        }
+
+        // get sectorNo of new element
+        // theta has the 0 to 359 value
+        double theta = rayAngle(&CENTER, &pointOfClick);
+        rtc.place(theta);
+    }
+
+    void exitGame() {
+        highScoreFileInput.open("highscore.fusion");
+        int highScore = 0;
+        if (highScoreFileInput.is_open()) {
+            string line;
+            highScoreFileInput >> line;
+            highScore = stoi(line);
+        }
+        highScoreFileInput.close();
+
+        if (score >= highScore) {
+            highScoreFileOutput.open("highscore.fusion");
+            if (!highScoreFileOutput.is_open()) {
+                cout << "Error Opening highScore file" << endl;
+                exit(true);
+            }
+            highScoreFileOutput << score << " " << userName << endl;
+            highScoreFileOutput.close();
+        }
+
+        allScoresFileOutput.open("allscores.fusion", ios::app);
+        if (!allScoresFileOutput.is_open()) {
+            cout << "Error Opening All Scores file" << endl;
+            exit(true);
+        }
+        allScoresFileOutput << userName << " " << score << endl;
+        allScoresFileOutput.close();
+
+        exit(true);
+    }
+
+public:
+    Board() : MAX_ELEMENTS(12),
               score(0) {
     }
 
@@ -78,97 +127,33 @@ struct Board {
     }
 
     void startGameLoop() {
-        while (true) {
-            noElementsTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.,
-                                      WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., rtc.getCount());
-            highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., rtc.getHighest());
-            scoreTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., score);
+        refreshStatsBoard();
 
+        while (true) {
             rtc.spawn();
             placeNewElement();
             randomVar = (randomVar + 1) % 5;
             score += rtc.fuse();
-            rtc.print();
+            // rtc.print();
+            refreshStatsBoard();
 
-            if (rtc.getCount() >= 13) {
-                Text GameOver(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10, "Game Over o_0");
-                GameOver.setColor(COLOR_CHAURESTE);
+            if (rtc.getCount() > MAX_ELEMENTS) {
+                Text gameOverTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10, "Game Over o_0");
+                gameOverTextView.setColor(COLOR_CHAURESTE);
                 wait(2);
+
                 {
-                    Text FinalScoreMessage(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, "Your Score is");
-                    FinalScoreMessage.setColor(COLOR_CHAURESTE);
+                    Text yourScoreIsTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, "Your Score is");
+                    yourScoreIsTextView.setColor(COLOR_CHAURESTE);
                     wait(2);
                 }
-                Text FinalScore(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, score);
-                FinalScore.setColor(COLOR_CHAURESTE);
 
+                Text finalScoreTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, score);
+                finalScoreTextView.setColor(COLOR_CHAURESTE);
                 wait(2);
 
                 exitGame();
             }
         }
-    }
-
-    void placeNewElement() {
-        Vector2d pointOfClick;
-        registerClick(&pointOfClick);
-
-        // exit pressed ?
-        double distance = Vector2d().setDiffOf(&EXIT_CENTER, &pointOfClick)->length();
-        if (distance <= WINDOW_SIDE_LENGTH / 10.) {
-            exitGame();
-        }
-
-        // get sectorNo of new element
-        // theta has the 0 to 359 value
-        double theta = rayAngle(&CENTER, &pointOfClick);
-        rtc.place(theta);
-    }
-
-    void exitGame() {
-        highScoreFileInput.open("HighScore.txt");
-        if (!highScoreFileInput.is_open()) {
-            cout << "Error Opening HighScore file" << endl;
-            exit(true);
-        }
-        string line;
-        highScoreFileInput >> line;
-        int length = line.length();
-        int HighScore = 0;
-
-        for (int i = 0; i < length; i++) {
-            if (line[i] == '0')HighScore = HighScore * 10 + 0;
-            else if (line[i] == '1')HighScore = HighScore * 10 + 1;
-            else if (line[i] == '2')HighScore = HighScore * 10 + 2;
-            else if (line[i] == '3')HighScore = HighScore * 10 + 3;
-            else if (line[i] == '4')HighScore = HighScore * 10 + 4;
-            else if (line[i] == '5')HighScore = HighScore * 10 + 5;
-            else if (line[i] == '6')HighScore = HighScore * 10 + 6;
-            else if (line[i] == '7')HighScore = HighScore * 10 + 7;
-            else if (line[i] == '8')HighScore = HighScore * 10 + 8;
-            else if (line[i] == '9')HighScore = HighScore * 10 + 9;
-        }
-        highScoreFileInput.close();
-        // cout<<HighScore<<endl;
-
-        allScoresFileOutput.open("AllScores.txt", ios::app);
-        if (!allScoresFileOutput.is_open()) {
-            cout << "Error Opening All Scores file" << endl;
-            exit(true);
-        }
-        string UserNamePrint = "  -  " + userName;
-        allScoresFileOutput << score << UserNamePrint << endl;
-        allScoresFileOutput.close();
-
-        if (score > HighScore) {
-            highScoreFileOutput.open("HighScore.txt");
-            if (!highScoreFileOutput.is_open()) {
-                cout << "Error Opening HighScore file" << endl;
-                exit(true);
-            }
-            highScoreFileOutput << score << UserNamePrint << endl;
-            highScoreFileOutput.close();
-        }
-        exit(true);
     }
 };
