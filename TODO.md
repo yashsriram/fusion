@@ -1,4 +1,6 @@
 - [x] Implement good data structure
+- [ ] Fix highest number achieved
+- [ ] Improve game experience
 - [ ] Decouple IO from game logic
 - [ ] Fix high score logic
 - [ ] Use better render methods
