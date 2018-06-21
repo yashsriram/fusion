@@ -12,31 +12,13 @@ class Element {
     Text text;
     int atomicNumber; // > 0
 
-    // meta data
-    const Color COLOR_CHAURESTE = COLOR(60, 226, 10);
+    const Color TEXT_COLOR = COLOR(0, 0, 0);
+    const Color COLOR_POOL[3] = {
+            COLOR(186, 104, 200), COLOR(77, 182, 172), COLOR(255, 183, 77)
+    };
 
     void setBgColor() {
-        Color color;
-        switch (atomicNumber % 5) {
-            case 0:
-                color = COLOR(atomicNumber * cR, 50 + cG, 20 + cB);
-                break;
-            case 1:
-                color = COLOR(20 + cR, 50 + cG, atomicNumber * cB);
-                break;
-            case 2:
-                color = COLOR(atomicNumber * cR, 20 + cG, 50 + cB);
-                break;
-            case 3:
-                color = COLOR(20 + cR, atomicNumber * cG, 50 + cB);
-                break;
-            case 4:
-                color = COLOR(50 + cR, 20 + cG, atomicNumber * cB);
-                break;
-            default:
-                color = COLOR(cR, cG, cB);
-                break;
-        }
+        Color color = COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))];
         circle.setColor(color);
     }
 
@@ -50,9 +32,10 @@ public:
                 y(WINDOW_SIDE_LENGTH / 2.0),
                 circle(Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)),
                 atomicNumber(randomVar + 1) {
+        circle.setFill();
         setBgColor();
         text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, atomicSymbol());
-        text.setColor(COLOR_CHAURESTE);
+        text.setColor(TEXT_COLOR);
     }
 
     int getAtomicNumber() { return atomicNumber; }
@@ -70,7 +53,7 @@ public:
     void setName(int newName) {
         atomicNumber = newName;
         text.reset(x, y, atomicSymbol());
-        text.setColor(COLOR_CHAURESTE);
+        text.setColor(TEXT_COLOR);
         setBgColor();
     }
 

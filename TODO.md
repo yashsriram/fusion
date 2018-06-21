@@ -3,8 +3,8 @@
 - [x] Fix high score logic
 - [ ] Improve game experience
     - [x] Highest Element achieved
-    - [ ] Element Symbol
+    - [x] Element Symbol
+    - [ ] Colors
     - [ ] Randomness
     - [ ] Score
-    - [ ] Colors
 - [ ] Close canvas properly
