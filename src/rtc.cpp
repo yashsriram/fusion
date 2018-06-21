@@ -209,7 +209,7 @@ public:
             removeChair(acw);
         }
 
-        fusingChair->person->setName(newName);
+        fusingChair->person->setAtomicNumber(newName);
         rearrangeChairs();
 
         return fuse(noFusionsOccured);
