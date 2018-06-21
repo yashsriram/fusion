@@ -29,13 +29,11 @@ public:
         circle.setColor(color);
         // text
         text.reset(x, y, getSymbolOfElement(atomicNumber));
-        text.setColor(TEXT_COLOR);
     }
 
     void render(double x, double y) {
         // circle
         circle.moveTo(x, y);
-        circle.setFill();
         // text
         text.moveTo(x, y);
     }
@@ -88,7 +86,7 @@ public:
         double radius2 = e2->radius;
 
         const float waitTime = 0.0005;
-        const double range = WINDOW_SIDE_LENGTH / 60.;
+        const double range = WINDOW_SIDE_LENGTH / 100.;
         int radiusStep = 1;
 
         double tempRadius1 = radius1;
