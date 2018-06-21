@@ -75,7 +75,7 @@ public:
         base.imprint();
 
         Circle outerCircle(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10);
-        outerCircle.setColor(COLOR(255, 255, 255)).setFill();
+        outerCircle.setColor(COLOR(250, 250, 250)).setFill();
         outerCircle.imprint();
 
         Circle innerCircle(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 10.);

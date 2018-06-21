@@ -4,8 +4,8 @@
 
 class ElementGraphics {
     const Color TEXT_COLOR = COLOR(0, 0, 0);
-    const Color COLOR_POOL[3] = {
-            COLOR(186, 104, 200), COLOR(77, 182, 172), COLOR(255, 183, 77)
+    const Color COLOR_POOL[5] = {
+            COLOR(186, 104, 200), COLOR(77, 182, 172), COLOR(255, 183, 77), COLOR(229, 115, 115), COLOR(161, 136, 127)
     };
 
 public:
@@ -77,18 +77,18 @@ public:
         return atomicNumber % 5 == 1;
     }
 
-    static void bubblingEffect(Element *E1, Element *E2) {
-        double x1 = E1->x;
-        double y1 = E1->y;
+    static void bubblingEffect(Element *e1, Element *e2) {
+        double x1 = e1->x;
+        double y1 = e1->y;
 
-        double x2 = E2->x;
-        double y2 = E2->y;
+        double x2 = e2->x;
+        double y2 = e2->y;
 
-        double radius1 = E1->radius;
-        double radius2 = E2->radius;
+        double radius1 = e1->radius;
+        double radius2 = e2->radius;
 
         const float waitTime = 0.0005;
-        const double range = WINDOW_SIDE_LENGTH / 100.;
+        const double range = WINDOW_SIDE_LENGTH / 60.;
         int radiusStep = 1;
 
         double tempRadius1 = radius1;
@@ -96,8 +96,8 @@ public:
 
         int halfCycleCounter = 0;
         while (true) {
-            E1->graphics.circle.reset(x1, y1, tempRadius1);
-            E2->graphics.circle.reset(x2, y2, tempRadius2);
+            e1->graphics.circle.reset(x1, y1, tempRadius1);
+            e2->graphics.circle.reset(x2, y2, tempRadius2);
             tempRadius1 = tempRadius1 + radiusStep;
             tempRadius2 = tempRadius2 + radiusStep;
             if (tempRadius1 >= radius1 + range || tempRadius2 >= radius2 + range) {
@@ -108,7 +108,7 @@ public:
                 radiusStep = -radiusStep;
                 halfCycleCounter++;
             }
-            if (halfCycleCounter == 2 && (tempRadius1 == radius1 || tempRadius2 == radius2))break;
+            if (halfCycleCounter == 2 && (tempRadius1 == radius1 || tempRadius2 == radius2)) { break; }
             wait(waitTime);
         }
     }

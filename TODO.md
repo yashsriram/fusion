@@ -4,7 +4,8 @@
 - [ ] Improve game experience
     - [x] Highest Element achieved
     - [x] Element Symbol
-    - [ ] Colors
+    - [ ] \+ element
     - [ ] Randomness
+    - [ ] Colors
     - [ ] Score
 - [ ] Close canvas properly
