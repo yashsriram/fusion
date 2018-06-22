@@ -9,33 +9,38 @@ class ElementGraphics {
     };
 
 public:
-    Circle circle;
-    Text text;
+    Circle *circle;
+    Text *text;
 
-    ElementGraphics(double radius, int atomicNumber) : circle(
-            Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)) {
+    ElementGraphics(double radius, int atomicNumber) :
+            circle(new Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)) {
         // circle
-        circle.setFill();
+        circle->setFill();
         Color color = COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))];
-        circle.setColor(color);
+        circle->setColor(color);
         // text
-        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, getSymbolOfElement(atomicNumber));
-        text.setColor(TEXT_COLOR);
+        text = new Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, getSymbolOfElement(atomicNumber));
+        text->setColor(TEXT_COLOR);
+    }
+
+    ~ElementGraphics() {
+        delete text;
+        delete circle;
     }
 
     void render(double x, double y, int atomicNumber) {
         // circle
         Color color = COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))];
-        circle.setColor(color);
+        circle->setColor(color);
         // text
-        text.reset(x, y, getSymbolOfElement(atomicNumber));
+        text->reset(x, y, getSymbolOfElement(atomicNumber));
     }
 
     void render(double x, double y) {
         // circle
-        circle.moveTo(x, y);
+        circle->moveTo(x, y);
         // text
-        text.moveTo(x, y);
+        text->moveTo(x, y);
     }
 
 };
@@ -94,8 +99,8 @@ public:
 
         int halfCycleCounter = 0;
         while (true) {
-            e1->graphics.circle.reset(x1, y1, tempRadius1);
-            e2->graphics.circle.reset(x2, y2, tempRadius2);
+            e1->graphics.circle->reset(x1, y1, tempRadius1);
+            e2->graphics.circle->reset(x2, y2, tempRadius2);
             tempRadius1 = tempRadius1 + radiusStep;
             tempRadius2 = tempRadius2 + radiusStep;
             if (tempRadius1 >= radius1 + range || tempRadius2 >= radius2 + range) {
