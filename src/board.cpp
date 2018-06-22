@@ -3,71 +3,26 @@
 #include "rtc.cpp"
 #include "io.cpp"
 
-class Board {
-    const Vector2d CENTER = Vector2d(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2.);
-    const Vector2d EXIT_CENTER = Vector2d(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.);
-    const int MAX_ELEMENTS;
-    const Color TEXT_COLOR = COLOR(0, 0, 0);
-
-    // state
-    int score;
-    int maxAtomicNumberAchieved;
-    RoundTableConference rtc;
-
-    // graphics
+class BoardGraphics {
     Text *noElementsTextView;
     Text *highestNumberTextView;
     Text *scoreTextView;
 
-    // meta data
-    string userName;
-
-    void refreshStatsBoard() {
-        noElementsTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.,
-                                  WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., rtc.getCount());
-        int currentHighest = rtc.getHighest();
-        if (currentHighest > maxAtomicNumberAchieved) { maxAtomicNumberAchieved = currentHighest; }
-        highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., maxAtomicNumberAchieved);
-        scoreTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., score);
-    }
-
-    void placeNewElement() {
-        Vector2d pointOfClick;
-        registerClick(&pointOfClick);
-
-        // exit pressed ?
-        double distance = Vector2d().setDiffOf(&EXIT_CENTER, &pointOfClick)->length();
-        if (distance <= WINDOW_SIDE_LENGTH / 10.) {
-            exitGame();
-        }
-
-        // get sectorNo of new element
-        // theta has the 0 to 359 value
-        double theta = rayAngle(&CENTER, &pointOfClick);
-        rtc.place(theta);
-    }
-
-    void exitGame() {
-        storeScore(userName, score);
-        exit(true);
-    }
+    const Color TEXT_COLOR = COLOR(0, 0, 0);
 
 public:
-    Board() : MAX_ELEMENTS(12),
-              score(0),
-              maxAtomicNumberAchieved(0) {
-    }
+    BoardGraphics() : noElementsTextView(nullptr),
+                      highestNumberTextView(nullptr),
+                      scoreTextView(nullptr) {}
 
-    ~Board() {
+    ~BoardGraphics() {
         delete noElementsTextView;
         delete highestNumberTextView;
         delete scoreTextView;
         closeCanvas();
     }
 
-    void render() {
-        cout << "Enter your number (No spaces):" << endl;
-        cin >> userName;
+    void render(const string &username) {
         initCanvas("Game0n", WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
 
         Rectangle base(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
@@ -100,6 +55,87 @@ public:
         scoreTextView->setColor(TEXT_COLOR).imprint();
     }
 
+    void render(int noElements, int maxAtomicNumberAchieved, int score) {
+        noElementsTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.,
+                                  WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., noElements);
+        highestNumberTextView->reset(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., maxAtomicNumberAchieved);
+        scoreTextView->reset(WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12., score);
+    }
+
+    void displayFinalScore(int score) {
+        Text gameOverTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10, "Game Over o_0");
+        gameOverTextView.setColor(TEXT_COLOR);
+        wait(2);
+
+        {
+            Text yourScoreIsTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, "Your Score is");
+            yourScoreIsTextView.setColor(TEXT_COLOR);
+            wait(2);
+        }
+
+        Text finalScoreTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, score);
+        finalScoreTextView.setColor(TEXT_COLOR);
+        wait(2);
+    }
+};
+
+class Board {
+    const Vector2d CENTER = Vector2d(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2.);
+    const Vector2d EXIT_CENTER = Vector2d(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.);
+    const int MAX_ELEMENTS;
+
+    // state
+    int score;
+    int maxAtomicNumberAchieved;
+    RoundTableConference rtc;
+
+    // graphics
+    BoardGraphics graphics;
+
+    // meta data
+    string username;
+
+    void refreshStatsBoard() {
+        int currentHighest = rtc.getHighest();
+        if (currentHighest > maxAtomicNumberAchieved) { maxAtomicNumberAchieved = currentHighest; }
+        graphics.render(rtc.getCount(), maxAtomicNumberAchieved, score);
+    }
+
+    void placeNewElement() {
+        Vector2d pointOfClick;
+        registerClick(&pointOfClick);
+
+        // exit pressed ?
+        double distance = Vector2d().setDiffOf(&EXIT_CENTER, &pointOfClick)->length();
+        if (distance <= WINDOW_SIDE_LENGTH / 10.) {
+            exitGame();
+        }
+
+        // get sectorNo of new element
+        // theta has the 0 to 359 value
+        double theta = rayAngle(&CENTER, &pointOfClick);
+        rtc.place(theta);
+    }
+
+    void exitGame() {
+        storeScore(username, score);
+        exit(true);
+    }
+
+public:
+    Board() : MAX_ELEMENTS(12),
+              score(0),
+              maxAtomicNumberAchieved(0) {
+    }
+
+    ~Board() {}
+
+    void render() {
+        cout << "Enter your number (No spaces):" << endl;
+        cin >> username;
+        graphics.render(username);
+    }
+
     void startGameLoop() {
         refreshStatsBoard();
 
@@ -112,20 +148,7 @@ public:
             refreshStatsBoard();
 
             if (rtc.getCount() > MAX_ELEMENTS) {
-                Text gameOverTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10, "Game Over o_0");
-                gameOverTextView.setColor(TEXT_COLOR);
-                wait(2);
-
-                {
-                    Text yourScoreIsTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, "Your Score is");
-                    yourScoreIsTextView.setColor(TEXT_COLOR);
-                    wait(2);
-                }
-
-                Text finalScoreTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. + 10, score);
-                finalScoreTextView.setColor(TEXT_COLOR);
-                wait(2);
-
+                graphics.displayFinalScore(score);
                 exitGame();
             }
         }
