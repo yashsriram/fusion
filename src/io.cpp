@@ -22,6 +22,7 @@ void storeScore(const string &username, int score) {
         highScoreFileOutput.open(HIGHSCORE_FILENAME);
         if (!highScoreFileOutput.is_open()) {
             printf("Error opening high score file");
+            highScoreFileOutput.close();
             return;
         }
         highScoreFileOutput << score << " " << username << endl;
@@ -31,9 +32,9 @@ void storeScore(const string &username, int score) {
     allScoresFileOutput.open(ALLSCORES_FILENAME, ios::app);
     if (!allScoresFileOutput.is_open()) {
         printf("Error opening all scores file");
+        allScoresFileOutput.close();
         return;
     }
-
     allScoresFileOutput << username << " " << score << endl;
     allScoresFileOutput.close();
 }
