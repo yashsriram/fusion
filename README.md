@@ -1,6 +1,14 @@
 ## Fusion
 Fun mind teasing puzzle game
 
+## How to install? [Linux]
+
+* Install dependencies
+    * `sudo apt-get install libx11-dev`
+* Open terminal in this directory
+    * `make` to compile code [creates an executable **fusion**]
+    * `make play` or `./fusion` to start playing
+
 ## How to play?
 * The game board is circular
 * An element (from periodic table if you remember) pops up in the center
@@ -13,8 +21,6 @@ Fun mind teasing puzzle game
     * For ex: `Li` `H` `+` `H` `Li` -\> `Be`
 * Not more than a **fixed number of elements** can be present on board
 * Plan place fuse and repeat to score the highest
-
-## How to get it started?
 
 ## Credits
 Inspired by Atomas game in Google Play Store
