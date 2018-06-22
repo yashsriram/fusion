@@ -1,8 +1,8 @@
 #include <common_def.h>
 #include <fstream>
 
-const string HIGHSCORE_FILENAME = "highscore.fusion";
-const string ALLSCORES_FILENAME = "allscores.fusion";
+const string HIGHSCORE_FILENAME = "../data/highscore.fusion";
+const string ALLSCORES_FILENAME = "../data/allscores.fusion";
 
 void storeScore(const string &username, int score) {
     ifstream highScoreFileInput;
@@ -22,7 +22,7 @@ void storeScore(const string &username, int score) {
         highScoreFileOutput.open(HIGHSCORE_FILENAME);
         if (!highScoreFileOutput.is_open()) {
             printf("Error opening high score file");
-            exit(true);
+            return;
         }
         highScoreFileOutput << score << " " << username << endl;
         highScoreFileOutput.close();
@@ -31,7 +31,7 @@ void storeScore(const string &username, int score) {
     allScoresFileOutput.open(ALLSCORES_FILENAME, ios::app);
     if (!allScoresFileOutput.is_open()) {
         printf("Error opening all scores file");
-        exit(true);
+        return;
     }
 
     allScoresFileOutput << username << " " << score << endl;
