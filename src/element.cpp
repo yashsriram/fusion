@@ -1,72 +1,113 @@
-#include<simplecpp>
+#include <simplecpp>
+#include "config.cpp"
+#include "periodictable.cpp"
 
-extern const int WINDOW_SIDE_LENGTH;
-extern int randomVar;
-extern int cR, cG, cB;
+class ElementGraphics {
+    const Color TEXT_COLOR = COLOR(0, 0, 0);
+    const Color COLOR_POOL[5] = {
+            COLOR(186, 104, 200), COLOR(77, 182, 172), COLOR(255, 183, 77), COLOR(229, 115, 115), COLOR(161, 136, 127)
+    };
 
-struct Element {
-    // state
-    double radius;
-    double x, y;
-
-    // graphics
+public:
     Circle circle;
     Text text;
 
-    // meta data
-    int number; // appears on the screen and > 0
-    int sector; // the sector number which it is in
-    int pointedByIndex; // has the index of the Board.'elements' pointer which points to this in the heap
-
-    Element() {
-        // init state
-        sector = -1;
-        pointedByIndex = -1; // not Pointed by any Board.'elements[i]' pointer
-        radius = WINDOW_SIDE_LENGTH * 4 / 50.0;
-        number = randomVar + 1; // randomness comes from here
-        x = WINDOW_SIDE_LENGTH / 2.0;
-        y = WINDOW_SIDE_LENGTH / 2.0;
-
-        // render
-        circle = Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius);
-        setBgColor();
-        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, number);
-        text.setColor(COLOR(60, 226, 10));
-    }
-
-    // 'x' and 'y' reset using 'sector' and Board.'currentSectorAngle'
-    void setSector(double sectorAngle) {
-        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(sectorAngle * sector);
-        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(sectorAngle * sector);
-        moveElementToXY();
-    }
-
-    // 'circle' 'text' are movedTo new position according to new 'x' 'y'
-    void moveElementToXY() {
-        text.moveTo(x, y);
-        circle.moveTo(x, y);
+    ElementGraphics(double radius, int atomicNumber) : circle(
+            Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)) {
+        // circle
         circle.setFill();
+        Color color = COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))];
+        circle.setColor(color);
+        // text
+        text = Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, getSymbolOfElement(atomicNumber));
+        text.setColor(TEXT_COLOR);
     }
 
-    void updateNameAndColor(int newName) {
-        number = newName;
-        Text source(x, y, number);
-        text = source;
-        text.setColor(COLOR(60, 226, 10));
-        setBgColor();
+    void render(double x, double y, int atomicNumber) {
+        // circle
+        Color color = COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))];
+        circle.setColor(color);
+        // text
+        text.reset(x, y, getSymbolOfElement(atomicNumber));
     }
 
-    void setBgColor() {
-        if (number % 5 == 1) {
-            circle.setColor(COLOR(20 + cR, 50 + cG, number * cB));
-        } else if (number % 5 == 2) {
-            circle.setColor(COLOR(number * cR, 20 + cG, 50 + cB));
-        } else if (number % 5 == 3) {
-            circle.setColor(COLOR(20 + cR, number * cG, 50 + cB));
-        } else if (number % 5 == 4) {
-            circle.setColor(COLOR(50 + cR, 20 + cG, number * cB));
-        } else if (number % 5 == 0) {
-            circle.setColor(COLOR(number * cR, 50 + cG, 20 + cB));
+    void render(double x, double y) {
+        // circle
+        circle.moveTo(x, y);
+        // text
+        text.moveTo(x, y);
+    }
+
+};
+
+class Element {
+    // state
+    double radius;
+    double x, y;
+    int atomicNumber; // > 0
+
+    // graphics
+    ElementGraphics graphics;
+
+public:
+    Element() : radius(WINDOW_SIDE_LENGTH * 4 / 50.0),
+                x(WINDOW_SIDE_LENGTH / 2.0),
+                y(WINDOW_SIDE_LENGTH / 2.0),
+                atomicNumber(randomVar + 1),
+                graphics(WINDOW_SIDE_LENGTH * 4 / 50.0, atomicNumber) {
+    }
+
+    int getAtomicNumber() { return atomicNumber; }
+
+    void setSector(int sectorNo, double sectorAngle) {
+        double theta = sectorAngle * sectorNo;
+        x = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * cosine(theta);
+        y = WINDOW_SIDE_LENGTH / 2.0 + (WINDOW_SIDE_LENGTH * 2.0 / 5) * sine(theta);
+        graphics.render(x, y);
+    }
+
+    void setAtomicNumber(int newAtomicNumber) {
+        atomicNumber = newAtomicNumber;
+        graphics.render(x, y, newAtomicNumber);
+    }
+
+    bool isFusingElement() {
+        return atomicNumber % 5 == 1;
+    }
+
+    static void bubblingEffect(Element *e1, Element *e2) {
+        double x1 = e1->x;
+        double y1 = e1->y;
+
+        double x2 = e2->x;
+        double y2 = e2->y;
+
+        double radius1 = e1->radius;
+        double radius2 = e2->radius;
+
+        const float waitTime = 0.0005;
+        const double range = WINDOW_SIDE_LENGTH / 100.;
+        int radiusStep = 1;
+
+        double tempRadius1 = radius1;
+        double tempRadius2 = radius2;
+
+        int halfCycleCounter = 0;
+        while (true) {
+            e1->graphics.circle.reset(x1, y1, tempRadius1);
+            e2->graphics.circle.reset(x2, y2, tempRadius2);
+            tempRadius1 = tempRadius1 + radiusStep;
+            tempRadius2 = tempRadius2 + radiusStep;
+            if (tempRadius1 >= radius1 + range || tempRadius2 >= radius2 + range) {
+                radiusStep = -radiusStep;
+                halfCycleCounter++;
+            }
+            if (tempRadius1 <= radius1 - range || tempRadius1 <= radius2 - range) {
+                radiusStep = -radiusStep;
+                halfCycleCounter++;
+            }
+            if (halfCycleCounter == 2 && (tempRadius1 == radius1 || tempRadius2 == radius2)) { break; }
+            wait(waitTime);
         }
     }
 
