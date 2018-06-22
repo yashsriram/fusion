@@ -19,12 +19,9 @@ public:
         delete noElementsTextView;
         delete highestNumberTextView;
         delete scoreTextView;
-        closeCanvas();
     }
 
     void render(const string &username) {
-        initCanvas("Game0n", WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
-
         Rectangle base(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
         base.setColor(COLOR(187, 222, 251)).setFill();
         base.imprint();
@@ -63,6 +60,9 @@ public:
     }
 
     void displayFinalScore(int score) {
+        Circle circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH * 4 / 50.0);
+        circle.setColor(COLOR(250, 250, 250)).setFill();
+
         Text gameOverTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10, "Game Over o_0");
         gameOverTextView.setColor(TEXT_COLOR);
         wait(2);
@@ -101,55 +101,41 @@ class Board {
         graphics.render(rtc.getCount(), maxAtomicNumberAchieved, score);
     }
 
-    void placeNewElement() {
-        Vector2d pointOfClick;
-        registerClick(&pointOfClick);
-
-        // exit pressed ?
-        double distance = Vector2d().setDiffOf(&EXIT_CENTER, &pointOfClick)->length();
-        if (distance <= WINDOW_SIDE_LENGTH / 10.) {
-            exitGame();
-        }
-
-        // get sectorNo of new element
-        // theta has the 0 to 359 value
-        double theta = rayAngle(&CENTER, &pointOfClick);
-        rtc.place(theta);
-    }
-
-    void exitGame() {
-        storeScore(username, score);
-        exit(true);
-    }
-
 public:
-    Board() : MAX_ELEMENTS(12),
-              score(0),
-              maxAtomicNumberAchieved(0) {
-    }
-
-    ~Board() {}
+    Board(string &username, int maxElements) : MAX_ELEMENTS(maxElements),
+                                               score(0),
+                                               maxAtomicNumberAchieved(0),
+                                               username(username) {}
 
     void render() {
-        cout << "Enter your number (No spaces):" << endl;
-        cin >> username;
         graphics.render(username);
     }
 
     void startGameLoop() {
         refreshStatsBoard();
 
+        Vector2d pointOfClick;
         while (true) {
             rtc.spawn();
-            placeNewElement();
+
+            registerClick(&pointOfClick);
+            // exit pressed ?
+            double distance = Vector2d().setDiffOf(&EXIT_CENTER, &pointOfClick)->length();
+            if (distance <= WINDOW_SIDE_LENGTH / 10.) {
+                storeScore(username, score);
+                break;
+            }
+            double theta = rayAngle(&CENTER, &pointOfClick);
+
+            rtc.place(theta);
             randomVar = (randomVar + 1) % 5;
             score += rtc.fuse();
             // rtc.print();
             refreshStatsBoard();
-
             if (rtc.getCount() > MAX_ELEMENTS) {
                 graphics.displayFinalScore(score);
-                exitGame();
+                storeScore(username, score);
+                break;
             }
         }
     }
