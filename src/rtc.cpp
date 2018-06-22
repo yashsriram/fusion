@@ -189,7 +189,7 @@ public:
         fusingTextView.setColor(COLOR_CHAURESTE);
 
         Chair *fusingChair = it;
-        int newName = 0;
+        int newName = fusingChair->person->getAtomicNumber();
         Chair *cw, *acw;
         Chair *nextCw = getNextChair(it);
         Chair *nextAcw = getPrevChair(it);
@@ -197,7 +197,7 @@ public:
             cw = nextCw;
             acw = nextAcw;
             // update atomicNumber
-            newName += cw->person->getAtomicNumber() + 1;
+            newName += cw->person->getAtomicNumber();
             noFusionsOccured++;
 
             Element::bubblingEffect(cw->person, acw->person);
