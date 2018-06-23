@@ -2,7 +2,7 @@
 
 int main() {
     string username;
-    cout << "Your name (No spaces):" << endl;
+    cout << "Your name please (but with no spaces)" << endl;
     cin >> username;
 
     initCanvas("Game0n", WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
