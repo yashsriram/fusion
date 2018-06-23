@@ -10,7 +10,8 @@ const std::string ELEMENT_SYMBOL[] = {
         "Mc", "Lv", "Ts", "Og"
 };
 
-std::string getSymbolOfElement(int atomicNumber) {
+std::string periodicTableSymbolOf(int atomicNumber) {
+    if (atomicNumber <= 0) { throw "Illegal argument exception"; }
     int tableSize = sizeof(ELEMENT_SYMBOL) / sizeof(*ELEMENT_SYMBOL);
     return ELEMENT_SYMBOL[(atomicNumber - 1) % tableSize];
 }

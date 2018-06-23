@@ -8,6 +8,16 @@ class ElementGraphics {
             COLOR(186, 104, 200), COLOR(77, 182, 172), COLOR(255, 183, 77), COLOR(229, 115, 115), COLOR(161, 136, 127)
     };
 
+    Color colorOf(int atomicNumber) {
+        if (atomicNumber == 0) { return COLOR(233, 30, 99); }
+        else { return COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))]; }
+    }
+
+    string symbolOf(int atomicNumber) {
+        if (atomicNumber == 0) { return "+"; }
+        else { return periodicTableSymbolOf(atomicNumber); }
+    }
+
 public:
     Circle *circle;
     Text *text;
@@ -16,10 +26,9 @@ public:
             circle(new Circle(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, radius)) {
         // circle
         circle->setFill();
-        Color color = COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))];
-        circle->setColor(color);
+        circle->setColor(colorOf(atomicNumber));
         // text
-        text = new Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, getSymbolOfElement(atomicNumber));
+        text = new Text(WINDOW_SIDE_LENGTH / 2.0, WINDOW_SIDE_LENGTH / 2.0, symbolOf(atomicNumber));
         text->setColor(TEXT_COLOR);
     }
 
@@ -30,10 +39,9 @@ public:
 
     void render(double x, double y, int atomicNumber) {
         // circle
-        Color color = COLOR_POOL[atomicNumber % (sizeof(COLOR_POOL) / sizeof(*COLOR_POOL))];
-        circle->setColor(color);
+        circle->setColor(colorOf(atomicNumber));
         // text
-        text->reset(x, y, getSymbolOfElement(atomicNumber));
+        text->reset(x, y, symbolOf(atomicNumber));
     }
 
     void render(double x, double y) {
@@ -49,18 +57,17 @@ class Element {
     // state
     double radius;
     double x, y;
-    int atomicNumber; // > 0
+    int atomicNumber;
 
     // graphics
     ElementGraphics graphics;
 
 public:
-    Element() : radius(WINDOW_SIDE_LENGTH * 4 / 50.0),
-                x(WINDOW_SIDE_LENGTH / 2.0),
-                y(WINDOW_SIDE_LENGTH / 2.0),
-                atomicNumber(randomVar + 1),
-                graphics(WINDOW_SIDE_LENGTH * 4 / 50.0, atomicNumber) {
-    }
+    explicit Element(int atomicNumber) : radius(WINDOW_SIDE_LENGTH * 4 / 50.0),
+                                         x(WINDOW_SIDE_LENGTH / 2.0),
+                                         y(WINDOW_SIDE_LENGTH / 2.0),
+                                         atomicNumber(atomicNumber),
+                                         graphics(WINDOW_SIDE_LENGTH * 4 / 50.0, atomicNumber) {}
 
     int getAtomicNumber() { return atomicNumber; }
 
@@ -77,7 +84,7 @@ public:
     }
 
     bool isFusingElement() {
-        return atomicNumber % 5 == 1;
+        return atomicNumber == 0;
     }
 
     static void bubblingEffect(Element *e1, Element *e2) {

@@ -83,6 +83,7 @@ class Board {
     const Vector2d CENTER = Vector2d(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2.);
     const Vector2d EXIT_CENTER = Vector2d(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH - WINDOW_SIDE_LENGTH / 12.);
     const int MAX_ELEMENTS;
+    default_random_engine generator;
 
     // state
     int score;
@@ -101,11 +102,36 @@ class Board {
         graphics.render(rtc.getCount(), maxAtomicNumberAchieved, score);
     }
 
+    int generateNewAtomicNumber() {
+        // + H He at starting of game
+        if (maxAtomicNumberAchieved < 3) { return rand() % 3; }
+
+        // 50% chance of + element if count is > MAX_ELEMENTS - 2
+        if (rtc.getCount() > MAX_ELEMENTS - 2 && rand() % 2 == 0) { return 0; }
+
+        // normal distribution
+        float mean = maxAtomicNumberAchieved * 0.50f;
+        float stddev = 1;
+        normal_distribution<float> distribution(mean, stddev);
+        int newAtomicNumber = static_cast<int>(distribution(generator));
+
+        // 20% chance of + element in every spawn
+        newAtomicNumber = rand() % 10 < 2 ? 0 : newAtomicNumber;
+
+        // 0 <= newAtomicNumber <= maxAtomicNumberAchieved
+        if (newAtomicNumber < 0) { return 0; }
+        else if (newAtomicNumber > maxAtomicNumberAchieved) { return maxAtomicNumberAchieved; }
+        
+        return newAtomicNumber;
+    }
+
 public:
     Board(string &username, int maxElements) : MAX_ELEMENTS(maxElements),
                                                score(0),
                                                maxAtomicNumberAchieved(0),
-                                               username(username) {}
+                                               username(username) {
+        srand(time(NULL));
+    }
 
     void render() {
         graphics.render(username);
@@ -116,7 +142,7 @@ public:
 
         Vector2d pointOfClick;
         while (true) {
-            rtc.spawn();
+            rtc.spawn(generateNewAtomicNumber());
 
             registerClick(&pointOfClick);
             // exit pressed ?
@@ -128,7 +154,6 @@ public:
             double theta = rayAngle(&CENTER, &pointOfClick);
 
             rtc.place(theta);
-            randomVar = (randomVar + 1) % 5;
             score += rtc.fuse();
             // rtc.print();
             refreshStatsBoard();

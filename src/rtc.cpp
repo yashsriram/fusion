@@ -1,3 +1,4 @@
+#include <random>
 #include "element.cpp"
 
 class RoundTableConference {
@@ -129,11 +130,11 @@ public:
         printf("\n");
     }
 
-    void spawn() {
+    void spawn(int atomicNumber) {
         if (newlySpawned != nullptr) {
             throw "Over spawn exception";
         }
-        newlySpawned = new Element();
+        newlySpawned = new Element(atomicNumber);
     }
 
     /**
@@ -182,14 +183,13 @@ public:
             // nothing to fuse
             return noFusionsOccured;
         }
-        // printf("fusion count = %d\n", fusionCount);
 
         // fuse elements
         Text fusingTextView(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., "FUSING ELEMENTS...");
         fusingTextView.setColor(COLOR_CHAURESTE);
 
         Chair *fusingChair = it;
-        int newName = fusingChair->person->getAtomicNumber();
+        int newName = 1;
         Chair *cw, *acw;
         Chair *nextCw = getNextChair(it);
         Chair *nextAcw = getPrevChair(it);
