@@ -5,7 +5,7 @@
     - [x] Highest Element achieved
     - [x] Element Symbol
     - [x] Score
-    - [ ] Randomness
-    - [ ] \+ element
+    - [x] Randomness
+    - [x] \+ element
     - [ ] Colors
 - [ ] Close canvas properly
