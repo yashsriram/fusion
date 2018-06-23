@@ -19,7 +19,7 @@ Fun mind teasing puzzle game
     * For Ex. `H` `+` `H` = `He`
     * More than one pair of elements can be fused at a time
     * For ex: `Li` `H` `+` `H` `Li` = `Be`
-* Not more than a **fixed number of elements** can be present on board
+* Not more than a **fixed number of elements(12)** can be present on board
 * Plan place fuse and repeat to score the highest
 
 ## Credits
