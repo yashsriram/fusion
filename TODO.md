@@ -7,5 +7,5 @@
     - [x] Score
     - [x] Randomness
     - [x] \+ element
-    - [ ] Colors
-- [ ] Close canvas properly
+    - [x] Colors
+- [x] Close canvas properly
