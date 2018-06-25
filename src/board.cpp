@@ -23,11 +23,11 @@ public:
 
     void render(const string &username) {
         Rectangle base(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
-        base.setColor(COLOR(187, 222, 251)).setFill();
+        base.setColor(COLOR(200, 229, 252)).setFill();
         base.imprint();
 
         Circle outerCircle(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2. - 10);
-        outerCircle.setColor(COLOR(250, 250, 250)).setFill();
+        outerCircle.setColor(COLOR(255, 255, 255)).setFill();
         outerCircle.imprint();
 
         Circle innerCircle(WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 2., WINDOW_SIDE_LENGTH / 10.);
@@ -106,7 +106,8 @@ class Board {
         // + H He at starting of game
         if (maxAtomicNumberAchieved < 3) { return rand() % 3; }
 
-        // 50% chance of + element if count is > MAX_ELEMENTS - 2
+        // Higher chance when limit is near
+        if (rtc.getCount() > MAX_ELEMENTS - 1 && rand() % 10 < 7) { return 0; }
         if (rtc.getCount() > MAX_ELEMENTS - 2 && rand() % 2 == 0) { return 0; }
 
         // normal distribution
@@ -121,7 +122,7 @@ class Board {
         // 0 <= newAtomicNumber <= maxAtomicNumberAchieved
         if (newAtomicNumber < 0) { return 0; }
         else if (newAtomicNumber > maxAtomicNumberAchieved) { return maxAtomicNumberAchieved; }
-        
+
         return newAtomicNumber;
     }
 
