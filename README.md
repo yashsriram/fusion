@@ -4,7 +4,7 @@ Fun mind teasing puzzle game
 ## How to install? [Ubuntu]
 
 * Install dependencies
-    * `sudo apt-get install libx11-dev`
+    * `sudo apt-get install libx11-6 libx11-dev`
 * Open terminal in this directory
     * `make` to compile code [creates an executable **fusion**]
     * `make play` or `./fusion` to start playing
