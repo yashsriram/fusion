@@ -6,8 +6,10 @@ Fun mind teasing puzzle game
 * Install dependencies
     * `sudo apt-get install libx11-dev`
 * Open terminal in this directory
+    * `mkdir build && cd build`
+    * `cmake ..`
     * `make` to compile code [creates an executable **fusion**]
-    * `make play` or `./fusion` to start playing
+    * `./fusion` to start playing
 
 ## How to play?
 * The game board is circular

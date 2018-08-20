@@ -9,3 +9,4 @@
     - [x] \+ element
     - [x] Colors
 - [x] Close canvas properly
+- [ ] Fix stoi bug

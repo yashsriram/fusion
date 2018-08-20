@@ -1,8 +1,8 @@
 #include <common_def.h>
 #include <fstream>
 
-const string HIGHSCORE_FILENAME = "data/highscore.fusion";
-const string ALLSCORES_FILENAME = "data/allscores.fusion";
+const string HIGHSCORE_FILENAME = "../data/highscore.fusion";
+const string ALLSCORES_FILENAME = "../data/allscores.fusion";
 
 void storeScore(const string &username, int score) {
     ifstream highScoreFileInput;
