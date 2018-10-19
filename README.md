@@ -1,5 +1,6 @@
 ## Fusion
 Fun mind teasing puzzle game
+![Alt Gameplay](github/gameplay.gif)
 
 ## How to install? [Ubuntu]
 
