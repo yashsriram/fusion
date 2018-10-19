@@ -1,4 +1,4 @@
-#include <common_def.h>
+#include "common_def.h"
 #include <fstream>
 
 const string HIGHSCORE_FILENAME = "../data/highscore.fusion";

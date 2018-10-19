@@ -18,7 +18,7 @@ include_directories(include)
 add_executable(fusion ${SOURCES})
 
 # Link library
-find_library(LIB_SIMPLE_CPP simplecppstatic HINT lib/)
+find_library(LIB_SIMPLE_CPP sprite HINT lib/)
 find_library(LIB_X11 X11)
 
 target_link_libraries(fusion ${LIB_SIMPLE_CPP} ${LIB_X11})

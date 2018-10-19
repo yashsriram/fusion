@@ -1,7 +1,7 @@
 - [x] Implement good data structure
 - [x] Decouple IO from game logic
 - [x] Fix high score logic
-- [ ] Improve game experience
+- [x] Improve game experience
     - [x] Highest Element achieved
     - [x] Element Symbol
     - [x] Score

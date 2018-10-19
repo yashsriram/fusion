@@ -1,4 +1,4 @@
-#include <simplecpp>
+#include "simplecpp"
 #include "config.cpp"
 #include "periodictable.cpp"
 

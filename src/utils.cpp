@@ -1,5 +1,5 @@
 #include "vector2d.cpp"
-#include <simplecpp>
+#include "simplecpp"
 
 /**
 * Stores the coordinates of click into a vector2d
