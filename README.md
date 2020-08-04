@@ -84,12 +84,15 @@ The following gifs illustrates the gameplay.
     - [x] Implement good data structure for maintaining game state. Round Table Conference Structure i.e. Circular double linked list.
     - [x] Random new atomic number based on max atomic number achieved. Use normal dist with mean = 0.5 max achieved, std = 1.
 - [x] Fix high score logic.
-- [x] Improve game experience.
+- [ ] Improve game experience.
     - [x] Highest Element achieved.
     - [x] Element Symbol.
     - [x] Score.
     - [x] Randomness.
     - [x] \+ element.
     - [x] Colors.
+    - [ ] Place the first element on top instead of right side.
+    - [ ] It's better to provide a restart option after game-over instead of closing the window.
+    - [ ] Show the scoreboard on the terminal along with current score and rank.
 - [x] Close canvas properly.
 - [ ] Fix stoi bug.
