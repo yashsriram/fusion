@@ -11,5 +11,5 @@ int main() {
     board.render();
     board.startGameLoop();
 
-//    closeCanvas();
+    /* closeCanvas(); */
 }
