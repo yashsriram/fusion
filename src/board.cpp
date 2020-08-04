@@ -44,7 +44,7 @@ public:
         noElementsTextView->setColor(TEXT_COLOR).imprint();
 
         highestNumberTextView = new Text(WINDOW_SIDE_LENGTH / 12., WINDOW_SIDE_LENGTH / 12. - WINDOW_SIDE_LENGTH / 50.,
-                                         "HIGHEST ELEMENT ATOMIC No.");
+                                         "HIGHEST ATOMIC No.");
         highestNumberTextView->setColor(TEXT_COLOR).imprint();
 
         scoreTextView = new Text(WINDOW_SIDE_LENGTH * 11 / 12., WINDOW_SIDE_LENGTH / 12. - WINDOW_SIDE_LENGTH / 50.,

@@ -38,7 +38,7 @@ class ElementGraphics {
 
     string symbolOf(int atomicNumber) {
         if (atomicNumber == 0) { return "+"; }
-        else { return periodicTableSymbolOf(atomicNumber); }
+        else { return periodicTableSymbolOf(atomicNumber) + " (" + to_string(atomicNumber) + ")"; }
     }
 
 public:

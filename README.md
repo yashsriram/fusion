@@ -1,7 +1,7 @@
 # fusion
 
 ## description
-- Fusion is a simple addictive puzzle game.
+- Fusion is a circular variant of [tetris](https://en.wikipedia.org/wiki/Tetris).
 
 ## code
 - The code is written in `C++`.
@@ -31,9 +31,10 @@
 - Sometimes a special element `+` pops up.
     - Once placed in circle, It has the power to fuse other elements.
     - But for fusion to occur elements on either side of `+` should be mirror images.
-    - For example, if board has `H` `+` `H`, then both `H` fuse to give `He`.
+    - For example, if board has `H (1)` `+` `H (1)`, then both `H` fuse to give `He (2)`.
     - More than one pair of elements can be fused at a time.
-    - For example, `Li` `H` `+` `H` `Li` gives `Be`.
+    - For example, `Li (3)` `H (1)` `+` `H (1)` `Li (3)` gives `Be (4)`.
+    - Even `+`'s can be fused. `+` `+` `+` gives `H (1)`.
 - Every time a fusion occurs you get a point.
 - Notice the number of elements decrease when fusion occurs.
 - If the number of elements on the board exceed `12` the game ends.
@@ -51,7 +52,7 @@ The following gifs illustrates the gameplay.
     - [x] 120 element symbols and colors.
     - [x] Decouple file i/o from game logic.
     - [x] Bubbling effect while fusing.
-    - [x] Implement good data structure for maintaining game state. Round Table Conference Structure. Circular double linked list.
+    - [x] Implement good data structure for maintaining game state. Round Table Conference Structure i.e. Circular double linked list.
     - [x] Random new atomic number based on max atomic number achieved. Use normal dist with mean = 0.5 max achieved, std = 1.
 - [x] Fix high score logic.
 - [x] Improve game experience.

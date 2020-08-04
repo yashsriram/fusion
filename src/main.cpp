@@ -5,7 +5,7 @@ int main() {
     cout << "Your name please (but with no spaces)" << endl;
     cin >> username;
 
-    initCanvas("Game0n", WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
+    initCanvas("Fusion", WINDOW_SIDE_LENGTH, WINDOW_SIDE_LENGTH);
 
     Board board = Board(username, 12);
     board.render();
