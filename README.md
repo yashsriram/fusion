@@ -25,17 +25,18 @@
 
 ### rules
 - The game board is circular.
-- An element (from the periodic table) pops up in the center.
+- An element (from the periodic table) pops up in the center randomly.
 - It can be placed anywhere on the circular board. Once placed, the ones on the board space themselves out equally.
-- As one element is placed a new element appears again in the center.
+- As one element is placed, a new element pops up again in the center.
 - Sometimes a special element `+` pops up.
-    - Once placed in circle, It has the power to fuse other elements.
+    - Once placed in circle, It has the power to fuse elements.
     - But for fusion to occur elements on either side of `+` should be mirror images.
     - For example, if board has `H (1)` `+` `H (1)`, then both `H` fuse to give `He (2)`.
     - More than one pair of elements can be fused at a time.
-    - For example, `Li (3)` `H (1)` `+` `H (1)` `Li (3)` gives `Be (4)`.
+    - For example, `He (2)` `H (1)` `+` `H (1)` `He (2)` gives `Be (4)`.
+    - Bigger combos generate bigger elements.
     - Even `+`'s can be fused. `+` `+` `+` gives `H (1)`.
-- Every time a fusion occurs you get a point.
+- Every time a fusion occurs you get some points based on the size of the combo.
 - Notice the number of elements decrease when fusion occurs.
 - If the number of elements on the board exceed `12` the game ends.
 - So the goal is to keep the fusion going and prevent that.
@@ -45,6 +46,34 @@
 
 ## demonstration
 The following gifs illustrates the gameplay.
+
+- Single fusion `H (1)` `+` `H (1)` => `He (2)`.
+
+![](./github/1.single_fusion.gif)
+
+- Single fusion `He (2)` `+` `He (2)` => `Li (3)`.
+
+![](./github/1.single_fusion_implicit.gif)
+
+- Multi fusion `He (2)` `H (1)` `+` `H (1)` `He (2)` => `Be (4)`.
+
+![](./github/2.multi_fusion1.gif)
+
+- Multi fusion `He (2)` `He (2)` `+` `He (2)` `He (2)` => `B (5)`.
+
+![](./github/2.multi_fusion2.gif)
+
+- Multi fusion `He (2)` `H (1)` `+` `H (1)` `He (2)` => `Be (4)`.
+
+![](./github/2.multi_fusion_implicit.gif)
+
+- Bad placement.
+
+![](./github/3.bad_placement.gif)
+
+- Full gameplay.
+
+![](./github/4.full_gameplay.gif)
 
 ## roadmap
 - [x] Basic game.
