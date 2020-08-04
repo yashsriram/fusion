@@ -26,7 +26,7 @@
 ### rules
 - The game board is circular.
 - An element (from the periodic table) pops up in the center randomly.
-- It can be placed anywhere on the circular board. Once placed, the ones on the board space themselves out equally.
+- It can be placed anywhere on the circular board with a mouse click. Once placed, the ones on the board space themselves out equally.
 - As one element is placed, a new element pops up again in the center.
 - Sometimes a special element `+` pops up.
     - Once placed in circle, It has the power to fuse elements.
