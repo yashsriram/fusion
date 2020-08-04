@@ -31,3 +31,17 @@ Fun mind teasing puzzle game
 
 ## Credits
 Inspired by Atomas game in Google Play Store
+
+- [x] Implement good data structure for maintaining game state. Round Table Conference Structure.
+- [x] Decouple IO from game logic.
+- [x] Fix high score logic.
+- [x] Improve game experience.
+    - [x] Highest Element achieved.
+    - [x] Element Symbol.
+    - [x] Score.
+    - [x] Randomness.
+    - [x] \+ element.
+    - [x] Colors.
+- [x] Close canvas properly.
+- [ ] Fix stoi bug.
+
